@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
@@ -48,6 +49,13 @@ kotlin {
             //koin
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+
+            //ktor client engine
+            implementation(libs.ktor.client.okhttp)
+
+            //coroutines
+            implementation(libs.kotlinx.coroutines.android)
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -64,6 +72,20 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+
+            //navigation
+            implementation(libs.navigation.compose)
+
+            //serialization
+            implementation(libs.kotlinx.serialization.json)
+
+            //ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json )
+
+            //coroutines
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -71,6 +93,27 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+
+            //ktor engine
+            implementation(libs.ktor.client.okhttp)
+        }
+
+        nativeMain.dependencies {
+            //ktor engine
+            implementation(libs.ktor.client.darwin)
+        }
+
+        wasmJsMain.dependencies {
+            //ktor engine
+            implementation(libs.ktor.client.js)
+        }
+        webMain.dependencies {
+            //ktor engine
+            implementation(libs.ktor.client.js)
+        }
+        jsMain.dependencies {
+            //ktor engine
+            implementation(libs.ktor.client.js)
         }
     }
 }
