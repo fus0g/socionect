@@ -1,0 +1,11 @@
+### Create a new user (Signup)
+POST http://localhost:8080/signup
+Content-Type: application/json
+
+{
+  "id": "",
+  "name": "Prabhat Maurya",
+  "username": "fus0g",
+  "email": "prabhat@e.com",
+  "password": "12345"
+}

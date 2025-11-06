@@ -1,5 +1,6 @@
 package dev.bugstitch.socionect
 
+import dev.bugstitch.socionect.modules.module
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
