@@ -97,9 +97,13 @@ class UserRepositoryImpl(private val httpClient: HttpClient): UserRepository {
                     setBody(user.toUserDTO())
                 }
                 if (response.status == HttpStatusCode.OK) {
+                    // user exists → conflict
                     emit(NetworkResult.Success(true))
-                } else {
+                } else if (response.status == HttpStatusCode.NotFound) {
+                    // user not found → available
                     emit(NetworkResult.Success(false))
+                } else {
+                    emit(NetworkResult.Error("Unexpected response: ${response.status}"))
                 }
             }catch (e: Exception){
                 emit(NetworkResult.Error(e.message.toString()))
@@ -117,9 +121,13 @@ class UserRepositoryImpl(private val httpClient: HttpClient): UserRepository {
                     setBody(user.toUserDTO())
                 }
                 if (response.status == HttpStatusCode.OK) {
+                    // user exists → conflict
                     emit(NetworkResult.Success(true))
-                } else {
+                } else if (response.status == HttpStatusCode.NotFound) {
+                    // user not found → available
                     emit(NetworkResult.Success(false))
+                } else {
+                    emit(NetworkResult.Error("Unexpected response: ${response.status}"))
                 }
             }catch (e: Exception){
                 emit(NetworkResult.Error(e.message.toString()))

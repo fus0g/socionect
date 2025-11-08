@@ -10,93 +10,155 @@ import org.jetbrains.exposed.v1.jdbc.update
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.sql.SQLException
 
 class UserDaoImpl(private val database: Database) : UserDao {
 
     override fun createUser(user: User): String {
-        transaction(database) {
-            Users.insert {
-                it[id] = user.id
-                it[name] = user.name
-                it[username] = user.username
-                it[email] = user.email
-                it[password] = user.password
+        return try {
+            transaction(database) {
+                Users.insert {
+                    it[id] = user.id
+                    it[name] = user.name
+                    it[username] = user.username
+                    it[email] = user.email
+                    it[password] = user.password
+                }
             }
+            user.username
+        } catch (e: SQLException) {
+            when {
+                e.message?.contains("UNIQUE constraint", ignoreCase = true) == true ||
+                        e.message?.contains("duplicate key", ignoreCase = true) == true -> {
+                    "Error: Username or email already exists"
+                }
+                else -> "Database error: ${e.message}"
+            }
+        } catch (e: Exception) {
+            println("Unexpected error while creating user: ${e.message}")
+            "Unexpected error: ${e.message}"
         }
-        return user.username
     }
 
     override fun updateUser(user: User): String {
-        transaction(database) {
-            Users.update({ Users.id eq user.id }) {
-                it[name] = user.name
-                it[username] = user.username
-                it[email] = user.email
-                it[password] = user.password
+        return try {
+            val updated = transaction(database) {
+                Users.update({ Users.id eq user.id }) {
+                    it[name] = user.name
+                    it[username] = user.username
+                    it[email] = user.email
+                    it[password] = user.password
+                }
             }
+
+            if (updated > 0) user.id else "Error: User not found"
+        } catch (e: SQLException) {
+            "Database error while updating: ${e.message}"
+        } catch (e: Exception) {
+            println("Unexpected error updating user: ${e.message}")
+            "Unexpected error: ${e.message}"
         }
-        return user.id
     }
 
     override fun deleteUser(user: User): Boolean {
-        return transaction(database) {
-            Users.deleteWhere { Users.id eq user.id } > 0
+        return try {
+            transaction(database) {
+                Users.deleteWhere { Users.id eq user.id } > 0
+            }
+        } catch (e: SQLException) {
+            println("Database error while deleting user: ${e.message}")
+            false
+        } catch (e: Exception) {
+            println("Unexpected error deleting user: ${e.message}")
+            false
         }
     }
 
     override fun getUser(id: String): User? {
-        return transaction(database) {
-            Users.selectAll().where { Users.id eq id }.map {
-                User(
-                    id = it[Users.id],
-                    name = it[Users.name],
-                    username = it[Users.username],
-                    email = it[Users.email],
-                    password = it[Users.password]
-                )
-            }.singleOrNull()
+        return try {
+            transaction(database) {
+                Users.selectAll().where { Users.id eq id }.map {
+                    User(
+                        id = it[Users.id],
+                        name = it[Users.name],
+                        username = it[Users.username],
+                        email = it[Users.email],
+                        password = it[Users.password]
+                    )
+                }.singleOrNull()
+            }
+        } catch (e: SQLException) {
+            println("Database error fetching user by id: ${e.message}")
+            null
+        } catch (e: Exception) {
+            println("Unexpected error fetching user by id: ${e.message}")
+            null
         }
     }
 
     override fun getUserByUsername(username: String): User? {
-        return transaction(database) {
-            Users.selectAll().where { Users.username eq username }.map {
-                User(
-                    id = it[Users.id],
-                    name = it[Users.name],
-                    username = it[Users.username],
-                    email = it[Users.email],
-                    password = it[Users.password]
-                )
-            }.singleOrNull()
+        return try {
+            transaction(database) {
+                Users.selectAll().where { Users.username eq username }.map {
+                    User(
+                        id = it[Users.id],
+                        name = it[Users.name],
+                        username = it[Users.username],
+                        email = it[Users.email],
+                        password = it[Users.password]
+                    )
+                }.singleOrNull()
+            }
+        } catch (e: SQLException) {
+            println("Database error fetching user by username: ${e.message}")
+            null
+        } catch (e: Exception) {
+            println("Unexpected error fetching user by username: ${e.message}")
+            null
         }
     }
 
     override fun getUserByEmail(email: String): User? {
-        return transaction(database) {
-            Users.selectAll().where { Users.email eq email }.map {
-                User(
-                    id = it[Users.id],
-                    name = it[Users.name],
-                    username = it[Users.username],
-                    email = it[Users.email],
-                    password = it[Users.password]
-                )
-            }.singleOrNull()
+        return try {
+            transaction(database) {
+                Users.selectAll().where { Users.email eq email }.map {
+                    User(
+                        id = it[Users.id],
+                        name = it[Users.name],
+                        username = it[Users.username],
+                        email = it[Users.email],
+                        password = it[Users.password]
+                    )
+                }.singleOrNull()
+            }
+        } catch (e: SQLException) {
+            println("Database error fetching user by email: ${e.message}")
+            null
+        } catch (e: Exception) {
+            println("Unexpected error fetching user by email: ${e.message}")
+            null
         }
     }
 
     override fun getAllUsers(): List<User> {
-        return transaction(database) {
-            Users.selectAll().map {
-                User(
-                    id = it[Users.id],
-                    name = it[Users.name],
-                    username = it[Users.username],
-                    email = it[Users.email],
-                    password = it[Users.password]
-                )
+        return try {
+            transaction(database) {
+                Users.selectAll().map {
+                    User(
+                        id = it[Users.id],
+                        name = it[Users.name],
+                        username = it[Users.username],
+                        email = it[Users.email],
+                        password = it[Users.password]
+                    )
+                }
             }
+        } catch (e: SQLException) {
+            println("Database error fetching all users: ${e.message}")
+            emptyList()
+        } catch (e: Exception) {
+            println("Unexpected error fetching all users: ${e.message}")
+            emptyList()
         }
     }
 }

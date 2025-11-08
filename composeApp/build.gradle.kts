@@ -90,6 +90,8 @@ kotlin {
 
             //multiplatform-settings
             implementation(libs.multiplatform.settings)
+
+            implementation(libs.material.icons.extended)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

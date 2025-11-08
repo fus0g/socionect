@@ -2,12 +2,13 @@ package dev.bugstitch.socionect.data.database.tables
 
 import org.jetbrains.exposed.v1.core.Table
 
-object Users: Table() {
+object Users : Table("users") {
 
-    val id = char(name = "id", length = 24)
-    val name = varchar(name = "name", length = 255)
-    val email = varchar(name = "email", length = 255)
-    val username = varchar(name = "username", length = 255)
-    val password = varchar(name = "password", length = 255)
+    val id = char("id", 24)
+    val name = varchar("name", 255)
+    val email = varchar("email", 255).uniqueIndex()
+    val username = varchar("username", 255).uniqueIndex()
+    val password = varchar("password", 255)
 
+    override val primaryKey = PrimaryKey(id, name = "PK_Users_ID")
 }

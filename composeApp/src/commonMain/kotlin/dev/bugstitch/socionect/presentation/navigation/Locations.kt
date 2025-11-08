@@ -10,3 +10,6 @@ object Signup
 
 @Serializable
 object Login
+
+@Serializable
+object Landing

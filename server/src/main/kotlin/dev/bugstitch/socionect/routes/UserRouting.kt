@@ -9,16 +9,14 @@ import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
 import dev.bugstitch.socionect.utils.PasswordHasher
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import java.util.Date
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import java.util.*
 
-fun Application.userRouting(userRepository: UserRepository){
+fun Application.userRouting(userRepository: UserRepository) {
 
     val secret = "secret"
     val issuer = "http://0.0.0.0:8080/"
@@ -27,35 +25,74 @@ fun Application.userRouting(userRepository: UserRepository){
 
     routing {
 
-        post("/signup"){
+        /**
+         * User Signup — Creates a new user and returns access + refresh tokens
+         */
+        post("/signup") {
             val user = call.receive<UserDTO>()
             val result = userRepository.createUser(user.toUser())
 
-            if(result == user.username)
-            {
-                call.respond(HttpStatusCode.Created)
-            }else{
-                call.respond(HttpStatusCode.BadRequest)
+            when {
+
+                result == user.username -> {
+                    val accessToken = JWT.create()
+                        .withAudience(audience)
+                        .withIssuer(issuer)
+                        .withClaim("username", user.username)
+                        .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+                        .sign(Algorithm.HMAC256(secret))
+
+                    val refreshToken = JWT.create()
+                        .withAudience(audience)
+                        .withIssuer(issuer)
+                        .withClaim("username", user.username)
+                        .withExpiresAt(Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000))
+                        .sign(Algorithm.HMAC256(secret))
+
+                    call.respond(
+                        HttpStatusCode.Created,
+                        TokenDTO(
+                            token = accessToken,
+                            refreshToken = refreshToken
+                        )
+                    )
+                }
+
+                result.contains("already exists", ignoreCase = true) -> {
+                    call.respond(HttpStatusCode.Conflict, "Username or email already exists")
+                }
+
+                result.startsWith("Error", ignoreCase = true) ||
+                        result.contains("Database error", ignoreCase = true) ||
+                        result.contains("Unexpected", ignoreCase = true) -> {
+                    call.respond(HttpStatusCode.InternalServerError, result)
+                }
+
+                else -> {
+                    call.respond(HttpStatusCode.BadRequest, "User creation failed: $result")
+                }
             }
         }
 
-        post("/login"){
-            val user  = call.receive<UserDTO>()
-            val validUser = userRepository.getUserByEmail(user.email)?.let {
-                PasswordHasher.verify(user.password,it.password)
-            } ?:false
 
-            if(!validUser)
-            {
-                call.respond(HttpStatusCode.Unauthorized,"Invalid Credentials")
+        /**
+         * User Login — Verifies credentials and returns tokens
+         */
+        post("/login") {
+            val user = call.receive<UserDTO>()
+            val validUser = userRepository.getUserByEmail(user.email)?.let {
+                PasswordHasher.verify(user.password, it.password)
+            } ?: false
+
+            if (!validUser) {
+                call.respond(HttpStatusCode.Unauthorized, "Invalid Credentials")
                 return@post
             }
 
             val accessToken = JWT.create()
-                .withAudience(secret)
-                .withIssuer(issuer)
                 .withAudience(audience)
-                .withClaim("username",user.username)
+                .withIssuer(issuer)
+                .withClaim("username", user.username)
                 .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                 .sign(Algorithm.HMAC256(secret))
 
@@ -68,13 +105,15 @@ fun Application.userRouting(userRepository: UserRepository){
 
             call.respond(
                 TokenDTO(
-                    accessToken,
-                    refreshToken
+                    token = accessToken,
+                    refreshToken = refreshToken
                 )
             )
-
         }
 
+        /**
+         * Refresh Token — Generates new access token from refresh token
+         */
         post("/refresh") {
             val refreshRequest = call.receive<Map<String, String>>()
             val refreshToken = refreshRequest["refresh_token"]
@@ -100,49 +139,54 @@ fun Application.userRouting(userRepository: UserRepository){
                     .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 day
                     .sign(Algorithm.HMAC256(secret))
 
-                call.respond(TokenDTO(
-                    token = newAccessToken,
-                    refreshToken = refreshToken
-                ))
+                call.respond(
+                    TokenDTO(
+                        token = newAccessToken,
+                        refreshToken = refreshToken
+                    )
+                )
 
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.Unauthorized, "Invalid or expired refresh token")
             }
         }
 
-        post("/user/email"){
+        /**
+         * Get user by email
+         */
+        post("/user/email") {
             val email = call.receive<UserDTO>()
 
             val user = userRepository.getUserByEmail(email.email)
-            if(user != null)
-            {
+            if (user != null) {
                 call.respond(user.toUserDTO())
-            }else{
+            } else {
                 call.respond(HttpStatusCode.NotFound)
             }
         }
 
-        post("/user/username"){
+        /**
+         * Get user by username
+         */
+        post("/user/username") {
             val username = call.receive<UserDTO>()
 
             val user = userRepository.getUserByUsername(username.username)
 
-            if(user != null)
-            {
+            if (user != null) {
                 call.respond(user.toUserDTO())
-            }
-            else{
+            } else {
                 call.respond(HttpStatusCode.NotFound)
             }
         }
 
-        authenticate("auth-jwt-user"){
-
-            get("/user/hello"){
+        /**
+         * Protected route
+         */
+        authenticate("auth-jwt-user") {
+            get("/user/hello") {
                 call.respond(HttpStatusCode.OK)
             }
-
         }
-
     }
 }

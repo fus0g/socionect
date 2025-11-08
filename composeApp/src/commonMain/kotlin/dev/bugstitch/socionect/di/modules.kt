@@ -2,6 +2,8 @@ package dev.bugstitch.socionect.di
 
 import dev.bugstitch.socionect.data.repository.UserRepositoryImpl
 import dev.bugstitch.socionect.domain.repository.UserRepository
+import dev.bugstitch.socionect.presentation.viewmodels.HomeScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.LandingScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.LoginScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.SignUpScreenViewModel
 import io.ktor.client.HttpClient
@@ -11,6 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 expect val platformModule: Module
@@ -28,7 +31,10 @@ val sharedModule = module {
 
     single<UserRepository> { UserRepositoryImpl(get()) }
 
-    singleOf(::LoginScreenViewModel)
-    singleOf(::SignUpScreenViewModel)
 
+    viewModelOf(::LoginScreenViewModel)
+    viewModelOf(::SignUpScreenViewModel)
+    viewModelOf(::LandingScreenViewModel)
+
+    singleOf(::HomeScreenViewModel)
 }
