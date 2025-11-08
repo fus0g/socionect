@@ -79,13 +79,12 @@ fun Application.userRouting(userRepository: UserRepository) {
          * User Login — Verifies credentials and returns tokens
          */
         post("/login") {
-            val user = call.receive<UserDTO>()
-            val validUser = userRepository.getUserByEmail(user.email)?.let {
-                PasswordHasher.verify(user.password, it.password)
-            } ?: false
+            val loginRequest = call.receive<UserDTO>()
 
-            if (!validUser) {
-                call.respond(HttpStatusCode.Unauthorized, "Invalid Credentials")
+            val user = userRepository.authenticateUser(loginRequest.email, loginRequest.password)
+
+            if (user == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
                 return@post
             }
 
@@ -103,12 +102,7 @@ fun Application.userRouting(userRepository: UserRepository) {
                 .withExpiresAt(Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000))
                 .sign(Algorithm.HMAC256(secret))
 
-            call.respond(
-                TokenDTO(
-                    token = accessToken,
-                    refreshToken = refreshToken
-                )
-            )
+            call.respond(TokenDTO(token = accessToken, refreshToken = refreshToken))
         }
 
         /**

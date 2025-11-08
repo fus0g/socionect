@@ -14,4 +14,6 @@ interface UserRepository {
     fun verifyUser(user: User): Boolean
 
     fun login(user: User): Boolean
+
+    fun authenticateUser(email: String, password: String): User?
 }

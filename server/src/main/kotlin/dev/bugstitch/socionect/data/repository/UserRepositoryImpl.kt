@@ -8,6 +8,8 @@ import org.bson.types.ObjectId
 
 class UserRepositoryImpl(private val userDao: UserDao) : UserRepository {
 
+    private fun User.sanitized(): User = copy(password = "")
+
     override fun createUser(user: User): String {
         return try {
             if (getUserByEmail(user.email) == null && getUserByUsername(user.username) == null) {
@@ -33,6 +35,20 @@ class UserRepositoryImpl(private val userDao: UserDao) : UserRepository {
         } catch (e: Exception) {
             println("Error verifying user: ${e.message}")
             false
+        }
+    }
+
+    override fun authenticateUser(email: String, password: String): User? {
+        return try {
+            val dbUser = userDao.getUserByEmail(email)
+            if (dbUser != null && PasswordHasher.verify(password, dbUser.password)) {
+                dbUser.sanitized()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            println("Error authenticating user: ${e.message}")
+            null
         }
     }
 
