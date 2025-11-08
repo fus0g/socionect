@@ -9,3 +9,30 @@ Content-Type: application/json
   "email": "prabhat@e.com",
   "password": "12345"
 }
+
+### Login Request
+POST http://0.0.0.0:8080/login
+Content-Type: application/json
+
+{
+  "id": "",
+  "name": "Prabhat Maurya",
+  "username": "fus0g",
+  "email": "prabhat@e.com",
+  "password": "12345"
+}
+
+### Hello Request (Protected)
+GET http://0.0.0.0:8080/user/hello
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vMC4wLjAuMDo4MDgwLyIsImlzcyI6Imh0dHA6Ly8wLjAuMC4wOjgwODAvIiwidXNlcm5hbWUiOiJmdXMwZyIsImV4cCI6MTc2MjY4Mjk2Mn0.nndb46SSgdV5dlj4XrflZCoz6UdegX30UxWg7fyd79o
+Content-Type: application/json
+
+
+###
+
+POST http://0.0.0.0:8080/login
+Content-Type: application/json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vMC4wLjAuMDo4MDgwLyIsImlzcyI6Imh0dHA6Ly8wLjAuMC4wOjgwODAvIiwidXNlcm5hbWUiOiJmdXMwZyIsImV4cCI6MTc2MjY4Mjk2Mn0.nndb46SSgdV5dlj4XrflZCoz6UdegX30UxWg7fyd79o",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vMC4wLjAuMDo4MDgwLyIsImlzcyI6Imh0dHA6Ly8wLjAuMC4wOjgwODAvIiwidXNlcm5hbWUiOiJmdXMwZyIsImV4cCI6MTc2MDg5MzU5NX0.-kGg1mgsnflVPCfl_oNry3kBY1o9Xis4WvFzg-c5nAk"
+}

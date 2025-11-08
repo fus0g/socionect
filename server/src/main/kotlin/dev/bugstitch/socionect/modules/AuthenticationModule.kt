@@ -12,10 +12,10 @@ fun Application.authenticationModule(){
     val secret = "secret"
     val issuer = "http://0.0.0.0:8080/"
     val audience = "http://0.0.0.0:8080/"
-    val jwtRealm = "Access to 'hello'"
+    val jwtRealm = "hello"
 
     install(Authentication){
-        jwt {
+        jwt("auth-jwt-user") {
             realm = jwtRealm
             verifier {
                 JWT

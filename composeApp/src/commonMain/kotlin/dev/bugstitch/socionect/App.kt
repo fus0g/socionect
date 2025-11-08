@@ -1,79 +1,84 @@
 package dev.bugstitch.socionect
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import dev.bugstitch.socionect.presentation.navigation.Home
+import dev.bugstitch.socionect.presentation.navigation.Login
+import dev.bugstitch.socionect.presentation.navigation.Signup
+import dev.bugstitch.socionect.presentation.screens.HomeScreen
+import dev.bugstitch.socionect.presentation.screens.LoginScreen
+import dev.bugstitch.socionect.presentation.screens.SignUpScreen
+import dev.bugstitch.socionect.presentation.viewmodels.LoginScreenViewModel
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.koinInject
-
-import socionect.composeapp.generated.resources.Res
-import socionect.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        val scope = rememberCoroutineScope()
-        val client: HttpClient = koinInject()
-        var showContent by remember { mutableStateOf(false) }
-        var responseText by remember { mutableStateOf("Click the button to fetch data") }
+        val navController = rememberNavController()
 
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Button(
-                onClick = {
-                    showContent = !showContent
-                    if (showContent) {
-                        scope.launch {
-                            try {
-                                val response: HttpResponse =
-                                    client.get("https://api.restful-api.dev/objects")
-                                responseText = response.bodyAsText()
-                            } catch (e: Exception) {
-                                responseText = "Error: ${e.message}"
-                            }
+        NavHost(navController = navController, startDestination = Login) {
+
+            composable<Login> {
+                val loginViewModel = koinViewModel<LoginScreenViewModel>()
+
+                val loginSuccess = loginViewModel.loginSuccess.value
+                val loading = loginViewModel.loading.value
+                val errorMessage = loginViewModel.errorMessage.value
+
+                LaunchedEffect(loginSuccess) {
+                    if (loginSuccess) {
+                        navController.navigate(Home) {
+                            popUpTo(Login) { inclusive = true }
                         }
                     }
                 }
-            ) {
-                Text("Fetch API Data")
+
+                if (loading && !loginSuccess) {
+                    AutoLoginLoadingScreen()
+                } else {
+                    LoginScreen(
+                        email = loginViewModel.email.value,
+                        password = loginViewModel.password.value,
+                        loading = loading,
+                        errorMessage = errorMessage,
+                        onEmailChange = { loginViewModel.setEmail(it) },
+                        onPasswordChange = { loginViewModel.setPassword(it) },
+                        onSignInClick = { loginViewModel.login() },
+                        onSignUpClick = { navController.navigate(Signup) }
+                    )
+                }
             }
 
-            Spacer(Modifier.height(16.dp))
-
-            AnimatedVisibility(showContent) {
-                Text(
-                    text = responseText,
-                    modifier = Modifier.padding(16.dp)
-                )
+            composable<Signup> {
+                SignUpScreen()
             }
+
+            composable<Home> {
+                HomeScreen()
+            }
+        }
+    }
+}
+
+@Composable
+fun AutoLoginLoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Checking login session...")
         }
     }
 }

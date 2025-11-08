@@ -55,6 +55,7 @@ kotlin {
 
             //coroutines
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.multiplatform.settings)
 
         }
         commonMain.dependencies {
@@ -86,6 +87,9 @@ kotlin {
 
             //coroutines
             implementation(libs.kotlinx.coroutines.core)
+
+            //multiplatform-settings
+            implementation(libs.multiplatform.settings)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -96,24 +100,29 @@ kotlin {
 
             //ktor engine
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.multiplatform.settings)
         }
 
         nativeMain.dependencies {
             //ktor engine
             implementation(libs.ktor.client.darwin)
+            implementation(libs.multiplatform.settings)
         }
 
         wasmJsMain.dependencies {
             //ktor engine
             implementation(libs.ktor.client.js)
+            implementation(libs.multiplatform.settings)
         }
         webMain.dependencies {
             //ktor engine
             implementation(libs.ktor.client.js)
+            implementation(libs.multiplatform.settings)
         }
         jsMain.dependencies {
             //ktor engine
             implementation(libs.ktor.client.js)
+            implementation(libs.multiplatform.settings)
         }
     }
 }

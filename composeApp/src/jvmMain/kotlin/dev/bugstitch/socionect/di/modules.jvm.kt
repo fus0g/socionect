@@ -1,5 +1,6 @@
 package dev.bugstitch.socionect.di
 
+import dev.bugstitch.socionect.data.repository.PreferenceStore
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.Module
@@ -10,4 +11,5 @@ actual val platformModule: Module
         single<HttpClientEngine> {
             OkHttp.create()
         }
+        single { PreferenceStore() }
     }

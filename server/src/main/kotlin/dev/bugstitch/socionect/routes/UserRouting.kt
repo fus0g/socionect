@@ -2,14 +2,18 @@ package dev.bugstitch.socionect.routes
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import dev.bugstitch.socionect.data.models.TokenDTO
 import dev.bugstitch.socionect.data.models.UserDTO
 import dev.bugstitch.socionect.data.models.toUser
+import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
 import dev.bugstitch.socionect.utils.PasswordHasher
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import java.util.Date
@@ -35,9 +39,9 @@ fun Application.userRouting(userRepository: UserRepository){
             }
         }
 
-        post("/signin"){
+        post("/login"){
             val user  = call.receive<UserDTO>()
-            val validUser = userRepository.getUserByUsername(user.username)?.let {
+            val validUser = userRepository.getUserByEmail(user.email)?.let {
                 PasswordHasher.verify(user.password,it.password)
             } ?:false
 
@@ -63,9 +67,9 @@ fun Application.userRouting(userRepository: UserRepository){
                 .sign(Algorithm.HMAC256(secret))
 
             call.respond(
-                mapOf(
-                    "access_token" to accessToken,
-                    "refresh_token" to refreshToken
+                TokenDTO(
+                    accessToken,
+                    refreshToken
                 )
             )
 
@@ -96,11 +100,48 @@ fun Application.userRouting(userRepository: UserRepository){
                     .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 day
                     .sign(Algorithm.HMAC256(secret))
 
-                call.respond(mapOf("access_token" to newAccessToken))
+                call.respond(TokenDTO(
+                    token = newAccessToken,
+                    refreshToken = refreshToken
+                ))
 
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.Unauthorized, "Invalid or expired refresh token")
             }
+        }
+
+        post("/user/email"){
+            val email = call.receive<UserDTO>()
+
+            val user = userRepository.getUserByEmail(email.email)
+            if(user != null)
+            {
+                call.respond(user.toUserDTO())
+            }else{
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
+
+        post("/user/username"){
+            val username = call.receive<UserDTO>()
+
+            val user = userRepository.getUserByUsername(username.username)
+
+            if(user != null)
+            {
+                call.respond(user.toUserDTO())
+            }
+            else{
+                call.respond(HttpStatusCode.NotFound)
+            }
+        }
+
+        authenticate("auth-jwt-user"){
+
+            get("/user/hello"){
+                call.respond(HttpStatusCode.OK)
+            }
+
         }
 
     }

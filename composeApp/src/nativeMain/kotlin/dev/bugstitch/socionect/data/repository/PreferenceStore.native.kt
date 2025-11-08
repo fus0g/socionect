@@ -1,0 +1,31 @@
+package dev.bugstitch.socionect.data.repository
+
+import com.russhwolf.settings.NSUserDefaultsSettings
+import com.russhwolf.settings.Settings
+import platform.Foundation.NSUserDefaults
+
+actual class PreferenceStore {
+    private val settings: Settings = NSUserDefaultsSettings(NSUserDefaults.standardUserDefaults)
+
+    actual fun setPreference(key: String, value: String): String {
+        return try {
+            settings.putString(key, value)
+            "Success"
+        } catch (e: Exception) {
+            e.message ?: "Error"
+        }
+    }
+
+    actual fun getPreference(key: String): String? {
+        return settings.getStringOrNull(key)
+    }
+
+    actual fun removePreference(key: String): String {
+        return try {
+            settings.remove(key)
+            "Success"
+        } catch (e: Exception) {
+            e.message ?: "Error"
+        }
+    }
+}
