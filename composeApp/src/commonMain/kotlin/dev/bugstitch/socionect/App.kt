@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
 import dev.bugstitch.socionect.presentation.viewmodels.*
@@ -105,13 +106,68 @@ fun App() {
             composable<Home> {
                 val homeScreenViewModel = koinViewModel<HomeScreenViewModel>(viewModelStoreOwner = it)
 
-                HomeScreen {
-                    homeScreenViewModel.logout()
-                    navController.navigate(Login) {
-                        popUpTo(0) { inclusive = true }
+                HomeScreen(
+                    onLogout = {
+                        homeScreenViewModel.logout()
+                        navController.navigate(Login) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    navigateDiscover = {
+                        navController.navigate(Discover)
                     }
-                }
+                )
             }
+
+            composable<Discover> {
+                val vm = koinViewModel<UserSearchViewModel>()
+
+                val query by vm.query.collectAsState()
+                val results by vm.results.collectAsState()
+                val loading by vm.loading.collectAsState()
+                val error by vm.error.collectAsState()
+
+                UserSearchScreen(
+                    query = query,
+                    results = results,
+                    loading = loading,
+                    error = error,
+                    onQueryChange = { vm.setQuery(it) },
+                    onUserClick = { user ->
+                        navController.navigate(
+                            ChatRoom(
+                                otherUserId = user.id,
+                                otherUserName = user.username
+                            )
+                        )
+                    }
+                )
+            }
+
+            composable<ChatRoom> { backStackEntry ->
+                val args: ChatRoom = backStackEntry.toRoute()
+
+                val otherUserId = args.otherUserId
+                val otherUserName = args.otherUserName
+
+                val vm = koinViewModel<ChatRoomViewModel>(viewModelStoreOwner = backStackEntry)
+
+                val messages by vm.messages.collectAsState()
+                val loading by vm.loading.collectAsState()
+
+                LaunchedEffect(otherUserId) {
+                    vm.loadChat(otherUserId)
+                }
+
+                ChatRoomScreen(
+                    chatTitle = otherUserName,
+                    messages = messages,
+                    loading = loading,
+                    onSend = { text -> vm.sendMessage(text, otherUserId) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
         }
     }
 }

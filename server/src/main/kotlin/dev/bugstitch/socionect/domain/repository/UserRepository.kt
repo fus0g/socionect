@@ -16,4 +16,6 @@ interface UserRepository {
     fun login(user: User): Boolean
 
     fun authenticateUser(email: String, password: String): User?
+
+    fun searchUsers(query: String): List<User>
 }

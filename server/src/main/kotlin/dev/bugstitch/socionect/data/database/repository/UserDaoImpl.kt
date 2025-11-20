@@ -4,6 +4,8 @@ import dev.bugstitch.socionect.data.database.tables.Users
 import dev.bugstitch.socionect.domain.database.repository.UserDao
 import dev.bugstitch.socionect.domain.models.User
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
@@ -161,4 +163,31 @@ class UserDaoImpl(private val database: Database) : UserDao {
             emptyList()
         }
     }
+
+    override fun searchUsers(query: String): List<User> {
+        return try {
+            transaction(database) {
+                Users
+                    .selectAll()
+                    .where {
+                        (Users.username like "%$query%") or
+                                (Users.name like "%$query%") or
+                                (Users.email like "%$query%")
+                    }
+                    .map {
+                        User(
+                            id = it[Users.id],
+                            name = it[Users.name],
+                            username = it[Users.username],
+                            email = it[Users.email],
+                            password = it[Users.password]
+                        )
+                    }
+            }
+        } catch (e: SQLException) {
+            println("Database error searching users: ${e.message}")
+            emptyList()
+        }
+    }
+
 }

@@ -18,4 +18,6 @@ interface UserRepository {
     suspend fun checkEmailConflict(user:User):Flow<NetworkResult<Boolean>>
 
     suspend fun helloUser(jwt: String): Flow<NetworkResult<Boolean>>
+
+    suspend fun searchUsers(jwt:String,query: String): Flow<NetworkResult<List<User>>>
 }

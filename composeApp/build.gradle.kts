@@ -82,6 +82,7 @@ kotlin {
 
             //ktor
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json )
 
@@ -92,6 +93,8 @@ kotlin {
             implementation(libs.multiplatform.settings)
 
             implementation(libs.material.icons.extended)
+            implementation(libs.kotlinx.datetime)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

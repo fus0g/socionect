@@ -114,4 +114,15 @@ class UserRepositoryImpl(private val userDao: UserDao) : UserRepository {
             emptyList()
         }
     }
+
+    override fun searchUsers(query: String): List<User> {
+        return try {
+            userDao.searchUsers(query)
+                .map { it.copy(password = "") } // sanitize
+        } catch (e: Exception) {
+            println("Error searching users: ${e.message}")
+            emptyList()
+        }
+    }
+
 }

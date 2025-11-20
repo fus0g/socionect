@@ -4,7 +4,7 @@ import org.jetbrains.exposed.v1.core.Table
 
 object Users : Table("users") {
 
-    val id = char("id", 24)
+    val id = varchar("id", 48)
     val name = varchar("name", 255)
     val email = varchar("email", 255).uniqueIndex()
     val username = varchar("username", 255).uniqueIndex()

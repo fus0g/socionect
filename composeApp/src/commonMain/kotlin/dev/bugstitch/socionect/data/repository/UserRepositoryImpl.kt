@@ -4,6 +4,9 @@ import dev.bugstitch.socionect.EMU_SERVER
 import dev.bugstitch.socionect.SERVER
 import dev.bugstitch.socionect.WEB_SERVER
 import dev.bugstitch.socionect.data.models.TokenDTO
+import dev.bugstitch.socionect.data.models.UserDTO
+import dev.bugstitch.socionect.data.models.UserSearchRequest
+import dev.bugstitch.socionect.data.models.toUser
 import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
@@ -174,6 +177,40 @@ class UserRepositoryImpl(private val httpClient: HttpClient): UserRepository {
             }
         } catch (e: Exception) {
             emit(NetworkResult.Error(e.message ?: "Something went wrong"))
+        }
+    }
+
+    override suspend fun searchUsers(jwt: String, query: String): Flow<NetworkResult<List<User>>> {
+        return flow {
+            emit(NetworkResult.Loading())
+
+            try {
+                val response = httpClient.post("$endpoint/users/search") {
+                    contentType(ContentType.Application.Json)
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $jwt")
+                    }
+                    setBody(UserSearchRequest(query))
+                }
+
+                when (response.status) {
+                    HttpStatusCode.OK -> {
+                        val users = response.body<List<UserDTO>>().map { it.toUser() }
+                        emit(NetworkResult.Success(users))
+                    }
+
+                    HttpStatusCode.BadRequest -> {
+                        emit(NetworkResult.Error("Invalid query"))
+                    }
+
+                    else -> {
+                        emit(NetworkResult.Error("Unexpected: ${response.status}"))
+                    }
+                }
+
+            } catch (e: Exception) {
+                emit(NetworkResult.Error(e.message.toString()))
+            }
         }
     }
 

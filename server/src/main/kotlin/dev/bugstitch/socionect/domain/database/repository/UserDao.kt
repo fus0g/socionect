@@ -18,4 +18,6 @@ interface UserDao {
 
     fun getAllUsers(): List<User>
 
+    fun searchUsers(query: String): List<User>
+
 }

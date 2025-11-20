@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import dev.bugstitch.socionect.data.models.TokenDTO
 import dev.bugstitch.socionect.data.models.UserDTO
+import dev.bugstitch.socionect.data.models.UserSearchRequest
 import dev.bugstitch.socionect.data.models.toUser
 import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
@@ -11,6 +12,7 @@ import dev.bugstitch.socionect.utils.PasswordHasher
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -34,18 +36,18 @@ fun Application.userRouting(userRepository: UserRepository) {
 
             when {
 
-                result == user.username -> {
+                result == user.id -> {
                     val accessToken = JWT.create()
                         .withAudience(audience)
                         .withIssuer(issuer)
-                        .withClaim("username", user.username)
+                        .withClaim("id", user.id)
                         .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                         .sign(Algorithm.HMAC256(secret))
 
                     val refreshToken = JWT.create()
                         .withAudience(audience)
                         .withIssuer(issuer)
-                        .withClaim("username", user.username)
+                        .withClaim("id", user.id)
                         .withExpiresAt(Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000))
                         .sign(Algorithm.HMAC256(secret))
 
@@ -91,14 +93,14 @@ fun Application.userRouting(userRepository: UserRepository) {
             val accessToken = JWT.create()
                 .withAudience(audience)
                 .withIssuer(issuer)
-                .withClaim("username", user.username)
+                .withClaim("id", user.id)
                 .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                 .sign(Algorithm.HMAC256(secret))
 
             val refreshToken = JWT.create()
                 .withAudience(audience)
                 .withIssuer(issuer)
-                .withClaim("username", user.username)
+                .withClaim("id", user.id)
                 .withExpiresAt(Date(System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000))
                 .sign(Algorithm.HMAC256(secret))
 
@@ -124,12 +126,12 @@ fun Application.userRouting(userRepository: UserRepository) {
                     .build()
                     .verify(refreshToken)
 
-                val username = decodedJWT.getClaim("username").asString()
+                val id = decodedJWT.getClaim("id").asString()
 
                 val newAccessToken = JWT.create()
                     .withAudience(audience)
                     .withIssuer(issuer)
-                    .withClaim("username", username)
+                    .withClaim("id", id)
                     .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 day
                     .sign(Algorithm.HMAC256(secret))
 
@@ -179,7 +181,25 @@ fun Application.userRouting(userRepository: UserRepository) {
          */
         authenticate("auth-jwt-user") {
             get("/user/hello") {
-                call.respond(HttpStatusCode.OK)
+                val principal = call.principal<JWTPrincipal>()
+                val id = principal!!.payload.getClaim("id").asString()
+                val user = userRepository.getUser(id)
+                if (user != null) {
+                    call.respond(user.toUserDTO())
+                }
+                call.respond(HttpStatusCode.Unauthorized)
+            }
+
+            post("/users/search") {
+                val req = call.receive<UserSearchRequest>()
+
+                if (req.query.isBlank()) {
+                    return@post call.respond(HttpStatusCode.BadRequest, "Query cannot be empty.")
+                }
+
+                val results = userRepository.searchUsers(req.query)
+
+                call.respond(results.map { it.toUserDTO() })
             }
         }
     }

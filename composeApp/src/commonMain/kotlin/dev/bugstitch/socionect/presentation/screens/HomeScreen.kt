@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     onLogout: () -> Unit,
+    navigateDiscover: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -30,6 +31,13 @@ fun HomeScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text("Logout")
+            }
+
+            Button(
+                onClick = { navigateDiscover() },
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Discover Users")
             }
         }
     }
