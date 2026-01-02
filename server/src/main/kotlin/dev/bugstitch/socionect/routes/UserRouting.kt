@@ -36,7 +36,7 @@ fun Application.userRouting(userRepository: UserRepository) {
 
             when {
 
-                result == user.id -> {
+                result == user.username -> {
                     val accessToken = JWT.create()
                         .withAudience(audience)
                         .withIssuer(issuer)

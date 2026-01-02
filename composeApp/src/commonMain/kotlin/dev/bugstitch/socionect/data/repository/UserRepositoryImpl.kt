@@ -10,6 +10,7 @@ import dev.bugstitch.socionect.data.models.toUser
 import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
+import dev.bugstitch.socionect.utils.CustomLog
 import dev.bugstitch.socionect.utils.NetworkResult
 import dev.bugstitch.socionect.utils.platform
 import io.ktor.client.HttpClient

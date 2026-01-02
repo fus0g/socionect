@@ -2,7 +2,7 @@ package dev.bugstitch.socionect.data.database.tables
 
 import org.jetbrains.exposed.v1.core.Table
 
-object Users : Table("users") {
+object Users : Table("Users") {
 
     val id = varchar("id", 48)
     val name = varchar("name", 255)

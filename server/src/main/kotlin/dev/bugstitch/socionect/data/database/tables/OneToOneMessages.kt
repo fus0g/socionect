@@ -2,7 +2,7 @@ package dev.bugstitch.socionect.data.database.tables
 
 import org.jetbrains.exposed.v1.core.Table
 
-object OneToOneMessages : Table("oneToOneMessages") {
+object OneToOneMessages : Table("OneToOneMessages") {
     val messageId = long("messageId").autoIncrement()
     val chatId = varchar("chatId", 64).references(OneToOneChats.chatId)
     val senderId = varchar("senderId", 24).references(Users.id)
