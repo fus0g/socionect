@@ -6,9 +6,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import dev.bugstitch.socionect.data.models.toOrganisation
+import dev.bugstitch.socionect.domain.models.Organisation
+import dev.bugstitch.socionect.domain.models.toOrganisationDTO
 import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
+import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationMainScreen
 import dev.bugstitch.socionect.presentation.viewmodels.*
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -105,6 +113,9 @@ fun App() {
 
             composable<Home> {
                 val homeScreenViewModel = koinViewModel<HomeScreenViewModel>(viewModelStoreOwner = it)
+                val organisationListScreenViewModel = koinViewModel<OrganisationListScreenViewModel>(viewModelStoreOwner = it)
+
+                val orgListData = organisationListScreenViewModel.organisations.collectAsState()
 
                 HomeScreen(
                     onLogout = {
@@ -115,6 +126,18 @@ fun App() {
                     },
                     navigateDiscover = {
                         navController.navigate(Discover)
+                    },
+                    navigateCreateOrg = {
+                        navController.navigate(CreateOrganisation)
+                    },
+                    organisationList = orgListData.value.organisations,
+                    onOrganisationItemClick = { org ->
+                        navController.navigate(OrganisationMainScreen(
+                            orgId = org.id,
+                            orgName = org.name,
+                            orgDescription = org.description,
+                            orgCreatedAt = org.createdAt
+                        ))
                     }
                 )
             }
@@ -166,6 +189,105 @@ fun App() {
                     onSend = { text -> vm.sendMessage(text, otherUserId) },
                     onBack = { navController.popBackStack() }
                 )
+            }
+
+            composable<CreateOrganisation> {
+                val vm = koinViewModel<CreateOrganisationScreenViewModel>(viewModelStoreOwner = it)
+
+                LaunchedEffect(vm.created.value){
+                    if(vm.created.value){
+                        navController.navigate(Home) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+
+                CreateOrganisationScreen(
+                    organisationName = vm.orgName.value,
+                    organisationDescription = vm.orgDescription.value,
+                    error = vm.error.value,
+                    onOrganisationNameChange = { n->
+                        vm.setOrgName(n)
+                    },
+                    onOrganisationDescriptionChange = { d->
+                        vm.setOrgDescription(d)
+                    },
+                    onOrganisationCreate = {
+                        vm.create()
+                    }
+                )
+            }
+
+            composable<OrganisationMainScreen> { backStackEntry ->
+
+                val args: OrganisationMainScreen = backStackEntry.toRoute()
+                val organisation = Organisation(
+                    id = args.orgId,
+                    name = args.orgName,
+                    description = args.orgDescription,
+                    createdAt = args.orgCreatedAt
+                )
+                val vm = koinViewModel<OrganisationMainScreenViewModel>(viewModelStoreOwner = backStackEntry)
+                vm.fetchSubtopics(organisation.id)
+                val state by vm.state.collectAsState()
+
+
+
+                OrganisationMainScreen(
+                    organisation = organisation,
+                    subtopics = state.subtopics,
+                    onSubtopicPressed = {},
+                    onSubtopicCreatePressed = {
+                        navController.navigate(CreateOrganisationSubtopic(
+                            orgId = organisation.id,
+                            orgName = organisation.name,
+                            orgDescription = organisation.description,
+                            orgCreatedAt = organisation.createdAt
+                        ))
+                    }
+                )
+            }
+
+            composable<CreateOrganisationSubtopic> { backStackEntry ->
+
+                val args: OrganisationMainScreen = backStackEntry.toRoute()
+                val organisation = Organisation(
+                    id = args.orgId,
+                    name = args.orgName,
+                    description = args.orgDescription,
+                    createdAt = args.orgCreatedAt
+                )
+
+                val vm = koinViewModel<CreateOrganisationSubtopicScreenViewModel>(viewModelStoreOwner = backStackEntry)
+
+                LaunchedEffect(vm.finished.value){
+                    if(vm.finished.value){
+                        navController.navigate(OrganisationMainScreen(
+                            orgId = organisation.id,
+                            orgName = organisation.name,
+                            orgDescription = organisation.description,
+                            orgCreatedAt = organisation.createdAt
+                        )){
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+
+                CreateSubTopicScreen(
+                    subtopicName = vm.subtopicName.value,
+                    subtopicDescription = vm.subtopicDescription.value,
+                    error = vm.error.value,
+                    onSubtopicNameChange = {
+                        vm.setSubtopicName(it)
+                    },
+                    onSubtopicDescriptionChange = {
+                        vm.setSubtopicDescription(it)
+                    },
+                    onSubtopicCreate = {
+                        vm.createSubtopic(organisation.id)
+                    }
+                )
+
             }
 
         }

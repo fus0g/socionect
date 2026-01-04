@@ -27,6 +27,10 @@ class OrganisationRepositoryImpl(private val organisationDao: OrganisationDao): 
         }
     }
 
+    override fun getUserOrganisations(userId: String): List<Organisation> {
+        return organisationDao.getAllUserOrganisation(userId)
+    }
+
     override fun getOrganisationsByMatchingName(name: String): List<Organisation> {
         return organisationDao.getOrganisationByMatchingName(name)
     }

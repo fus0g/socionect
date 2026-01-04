@@ -16,8 +16,10 @@ import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import kotlin.collections.emptyList
 
 class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
 
@@ -38,6 +40,27 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
             return if (success) nOrganisation else null
         } catch (e: Exception) {
             return null
+        }
+    }
+
+    override fun getAllUserOrganisation(userId: String): List<Organisation> {
+        return try{
+            transaction(database) {
+
+                (OrganisationMembers innerJoin Organisations).selectAll()
+                    .where{
+                        OrganisationMembers.userId eq userId
+                    }.map {
+                        Organisation(
+                            id = it[Organisations.id],
+                            name = it[Organisations.name],
+                            description = it[Organisations.description],
+                            createdAt = it[Organisations.createdAt]
+                        )
+                    }
+            }
+        }catch (e: Exception){
+            emptyList()
         }
     }
 
@@ -122,7 +145,7 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         return try {
             transaction(database) {
                 OrganisationMembers.insert {
-                    it[id] = organisationMember.id
+                    it[id] = ObjectId().toHexString()
                     it[organisationId] = organisationMember.organisationId
                     it[userId] = organisationMember.userId
                     it[role] = organisationMember.role

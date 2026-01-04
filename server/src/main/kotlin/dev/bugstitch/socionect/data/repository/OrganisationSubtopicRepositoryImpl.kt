@@ -7,15 +7,16 @@ import dev.bugstitch.socionect.domain.models.OrganisationSubtopicMember
 import dev.bugstitch.socionect.domain.models.OrganisationSubtopicMessage
 import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
 
-class OrganisationSubtopicRepositoryImpl(private val organisationSubtopicDao: OrganisationSubtopicDao) : OrganisationSubtopicRepository {
+class OrganisationSubtopicRepositoryImpl(private val organisationSubtopicDao: OrganisationSubtopicDao,
+    private val organisationDao: OrganisationDao) : OrganisationSubtopicRepository {
 
     override fun createSubtopic(
         orgSubtopic: OrganisationSubtopic,
         userId: String
     ): OrganisationSubtopic? {
         try {
-            val user = organisationSubtopicDao.getSubtopicMember(orgSubtopic.organisationId, userId)?: return null
-            if (user.isAdmin) {
+            val user = organisationDao.getOrganisationMember(orgSubtopic.organisationId,userId)?: return null
+            if (user.role  <= 1) {
                 val nSubtopic  = organisationSubtopicDao.createSubtopic(orgSubtopic)?: return null
                 organisationSubtopicDao.addSubTopicMember(
                     OrganisationSubtopicMember(

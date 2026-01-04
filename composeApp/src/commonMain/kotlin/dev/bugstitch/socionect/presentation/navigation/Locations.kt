@@ -1,5 +1,6 @@
 package dev.bugstitch.socionect.presentation.navigation
 
+import dev.bugstitch.socionect.data.models.OrganisationDTO
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,6 +17,25 @@ object Landing
 
 @Serializable
 object Discover
+
+@Serializable
+object CreateOrganisation
+
+@Serializable
+data class OrganisationMainScreen(
+    val orgId: String,
+    val orgName: String,
+    val orgDescription: String,
+    val orgCreatedAt: Long
+)
+
+@Serializable
+data class CreateOrganisationSubtopic(
+    val orgId: String,
+    val orgName: String,
+    val orgDescription: String,
+    val orgCreatedAt: Long
+)
 
 @Serializable
 data class ChatRoom(

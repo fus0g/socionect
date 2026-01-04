@@ -42,6 +42,16 @@ fun Application.organisationRouting(organisationRepository: OrganisationReposito
                 }
             }
 
+            get("/organisation/userOrganisations"){
+                val principal = call.principal<JWTPrincipal>() ?: return@get
+                val userId = principal.payload.getClaim("id").asString()
+
+                val result = organisationRepository.getUserOrganisations(userId)
+
+                call.respond(result.map { it.toOrganisationDTO() })
+
+            }
+
             post("/organisation/search") {
                 val name = call.receive<OrganisationDTO>()
                 val result = organisationRepository.getOrganisationsByMatchingName(name.name)

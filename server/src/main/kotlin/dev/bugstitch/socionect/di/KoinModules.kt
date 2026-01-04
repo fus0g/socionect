@@ -39,6 +39,6 @@ val KoinModule = module {
     single<UserRepository>{ UserRepositoryImpl(get()) }
     single<OneToOneChatRepository> { OneToOneChatRepositoryImpl(get(),get()) }
     single<OrganisationRepository> { OrganisationRepositoryImpl(get()) }
-    single<OrganisationSubtopicRepository> { OrganisationSubtopicRepositoryImpl(get()) }
+    single<OrganisationSubtopicRepository> { OrganisationSubtopicRepositoryImpl(get(), get()) }
 
 }

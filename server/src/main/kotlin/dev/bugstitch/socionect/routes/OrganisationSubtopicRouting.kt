@@ -32,15 +32,17 @@ fun Application.organisationSubtopicRouting(organisationSubtopicRepository: Orga
                     call.respond(result.toOrganisationSubtopicDTO())
                 }
                 else {
-                    call.respond(HttpStatusCode.InternalServerError, "Failed to create organisation subtopic")
+                    call.respond(HttpStatusCode.NotFound, "Failed to create organisation subtopic")
                 }
             }
 
             post("/organisation/subtopic/get")
             {
                 val organisationId = call.receive<OrganisationSubtopicDTO>()
-                val result = organisationSubtopicRepository.getAllSubtopics(organisationId.id)
-                call.respond(result.map { it.toOrganisationSubtopicDTO() })
+                val result = organisationSubtopicRepository.getAllSubtopics(organisationId.organisationId)
+                val lst = result.map { it.toOrganisationSubtopicDTO() }
+
+                call.respond(lst)
             }
 
             post("/organisation/subtopic/delete"){

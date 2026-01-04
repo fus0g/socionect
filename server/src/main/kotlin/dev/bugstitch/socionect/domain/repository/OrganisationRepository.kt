@@ -13,6 +13,8 @@ interface OrganisationRepository {
 
     fun getOrganisation(id: String): Organisation?
 
+    fun getUserOrganisations(userId: String): List<Organisation>
+
     fun addOrganisationMember(organisationMember: OrganisationMember,currentUserId: String): Boolean
 
     fun getOrganisationMembers(organisationId: String): List<OrganisationMember>

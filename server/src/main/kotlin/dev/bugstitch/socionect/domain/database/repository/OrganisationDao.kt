@@ -11,6 +11,8 @@ interface OrganisationDao {
 
     fun getAllOrganisations(): List<Organisation>
 
+    fun getAllUserOrganisation(userId: String): List<Organisation>
+
     fun getOrganisationByMatchingName(name: String): List<Organisation>
 
     fun getOrganisation(id: String): Organisation?
