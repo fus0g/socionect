@@ -21,6 +21,9 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrgani
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -321,18 +324,19 @@ fun App() {
             composable<OrganisationReceivedRequests>{
                 val args: OrganisationReceivedRequests = it.toRoute()
                 val vm = koinViewModel<OrganisationReceivedRequestScreenViewModel>(viewModelStoreOwner = it)
-                vm.getRequests(args.orgId)
+                val scope = rememberCoroutineScope()
+                scope.launch {
+                    vm.getRequests(args.orgId)
+                }
                 val state = vm.state.collectAsState()
 
                 OrganisationReceivedRequestScreen(
                     list = state.value.users,
                     onAccept = {usr->
                         vm.acceptRequest(usr.id, args.orgId)
-                        vm.getRequests(args.orgId)
                     },
                     onDecline = {usr->
                         vm.declineRequest(usr.id, args.orgId)
-                        vm.getRequests(args.orgId)
                     },
                 )
             }

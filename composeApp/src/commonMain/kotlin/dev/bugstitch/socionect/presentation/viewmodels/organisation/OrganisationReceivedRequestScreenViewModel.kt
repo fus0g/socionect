@@ -29,9 +29,9 @@ class OrganisationReceivedRequestScreenViewModel(
 
     private val token = settingsRepository.getPreference("access_token")
 
-    fun getRequests(organisationId: String) {
-        viewModelScope.launch {
-            if (token == null) return@launch
+    suspend fun getRequests(organisationId: String) {
+
+            if (token == null) return
             organisationRepository.getRequestsReceivedByOrganisation(organisationId, token).collect {
                 when (it) {
                     is NetworkResult.Success -> {
@@ -41,7 +41,7 @@ class OrganisationReceivedRequestScreenViewModel(
                     }
                     else -> {}
                 }
-            }
+
         }
     }
 
@@ -56,6 +56,7 @@ class OrganisationReceivedRequestScreenViewModel(
                 when (it) {
                     is NetworkResult.Success -> {
                         _finished.value = true
+                        getRequests(organisationId)
                     }
                     else -> {}
                 }
@@ -74,6 +75,7 @@ class OrganisationReceivedRequestScreenViewModel(
                 when (it) {
                     is NetworkResult.Success -> {
                         _finished.value = true
+                        getRequests(organisationId)
                     }
                     else -> {}
                 }
