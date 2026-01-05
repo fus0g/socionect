@@ -22,6 +22,9 @@ object Discover
 object CreateOrganisation
 
 @Serializable
+object DiscoverOrganisations
+
+@Serializable
 data class OrganisationMainScreen(
     val orgId: String,
     val orgName: String,
@@ -35,6 +38,11 @@ data class CreateOrganisationSubtopic(
     val orgName: String,
     val orgDescription: String,
     val orgCreatedAt: Long
+)
+
+@Serializable
+data class OrganisationReceivedRequests(
+    val orgId: String
 )
 
 @Serializable

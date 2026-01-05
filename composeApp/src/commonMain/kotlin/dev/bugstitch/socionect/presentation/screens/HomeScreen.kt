@@ -19,7 +19,8 @@ fun HomeScreen(
     navigateDiscover: () -> Unit,
     navigateCreateOrg: () -> Unit,
     organisationList: List<Organisation>,
-    onOrganisationItemClick: (Organisation) -> Unit
+    onOrganisationItemClick: (Organisation) -> Unit,
+    navigateDiscoverOrganisations: () -> Unit
 ) {
 
     val page = rememberSaveable{mutableStateOf(0)}
@@ -73,6 +74,11 @@ fun HomeScreen(
                                     onClick = {navigateCreateOrg()},
                                 ){
                                     Text("Create Organisation")
+                                }
+                                Button(
+                                    onClick = {navigateDiscoverOrganisations()},
+                                ){
+                                    Text("Browse Organisation")
                                 }
                             }
                         }

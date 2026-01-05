@@ -12,8 +12,8 @@ import dev.bugstitch.socionect.data.database.tables.OrganisationSubtopicMembers
 import dev.bugstitch.socionect.data.database.tables.OrganisationSubtopicMessages
 import dev.bugstitch.socionect.data.database.tables.OrganisationSubtopics
 import dev.bugstitch.socionect.data.database.tables.Organisations
-import dev.bugstitch.socionect.data.database.tables.OrganisationJoinReceivedRequests
-import dev.bugstitch.socionect.data.database.tables.OrganisationJoinSentRequests
+import dev.bugstitch.socionect.data.database.tables.OrganisationJoinRequestByUser
+import dev.bugstitch.socionect.data.database.tables.OrganisationJoinRequestByOrganisation
 import dev.bugstitch.socionect.data.database.tables.Users
 import io.ktor.server.application.Application
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -38,8 +38,8 @@ fun Application.configureDatabase(database: Database){
         SchemaUtils.create(CoalitionOrganisationMembers)
         SchemaUtils.create(CoalitionMessages)
 
-        SchemaUtils.create(OrganisationJoinReceivedRequests)
-        SchemaUtils.create(OrganisationJoinSentRequests)
+        SchemaUtils.create(OrganisationJoinRequestByUser)
+        SchemaUtils.create(OrganisationJoinRequestByOrganisation)
         SchemaUtils.create(CoalitionRequests)
 
     }

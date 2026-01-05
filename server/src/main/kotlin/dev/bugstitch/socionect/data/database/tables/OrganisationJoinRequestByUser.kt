@@ -2,7 +2,7 @@ package dev.bugstitch.socionect.data.database.tables
 
 import org.jetbrains.exposed.v1.core.Table
 
-object OrganisationJoinReceivedRequests: Table("OrganisationJoinReceivedRequests") {
+object OrganisationJoinRequestByUser: Table("OrganisationJoinReceivedRequests") {
 
     val id = varchar("id", 48)
     val organisationId = varchar("organisationId", 48).references(Organisations.id)

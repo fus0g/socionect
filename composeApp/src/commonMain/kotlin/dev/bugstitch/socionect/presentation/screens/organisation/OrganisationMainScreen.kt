@@ -20,6 +20,7 @@ fun OrganisationMainScreen(
     subtopics: List<OrganisationSubtopic>,
     onSubtopicPressed: (OrganisationSubtopic) -> Unit,
     onSubtopicCreatePressed: () -> Unit,
+    onReceivedRequestsClick: (organisation: Organisation) -> Unit
 ){
     Scaffold(modifier = Modifier.statusBarsPadding(),topBar = {
         Text(organisation.name)
@@ -39,6 +40,12 @@ fun OrganisationMainScreen(
             item {
                 Button(onClick = onSubtopicCreatePressed){
                     Text("Create Subtopic")
+                }
+            }
+
+            item {
+                Button(onClick = { onReceivedRequestsClick(organisation) }){
+                    Text("Received Requests")
                 }
             }
         }

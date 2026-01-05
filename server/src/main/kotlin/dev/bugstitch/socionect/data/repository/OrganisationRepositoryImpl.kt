@@ -2,9 +2,10 @@ package dev.bugstitch.socionect.data.repository
 
 import dev.bugstitch.socionect.domain.database.repository.OrganisationDao
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.OrganisationJoinReceivedRequest
-import dev.bugstitch.socionect.domain.models.OrganisationJoinSentRequest
+import dev.bugstitch.socionect.domain.models.RequestSendByUser
+import dev.bugstitch.socionect.domain.models.RequestSendByOrganisation
 import dev.bugstitch.socionect.domain.models.OrganisationMember
+import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.domain.repository.OrganisationRepository
 
 class OrganisationRepositoryImpl(private val organisationDao: OrganisationDao): OrganisationRepository {
@@ -49,115 +50,115 @@ class OrganisationRepositoryImpl(private val organisationDao: OrganisationDao): 
         return organisationDao.getOrganisationMembers(organisationId)
     }
 
-    override fun getAllOrganisationJoinSentRequests(organisationId: String): List<OrganisationJoinSentRequest> {
+    override fun getAllRequestsSendByOrganisation(organisationId: String): List<RequestSendByOrganisation> {
         return try {
-            organisationDao.getOrganisationJoinSentRequests(organisationId)
+            organisationDao.getOrganisationJoinRequestSendByOrganisation(organisationId)
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    override fun getAllOrganisationJoinReceivedRequests(organisationId: String): List<OrganisationJoinReceivedRequest> {
+    override fun getAllRequestsReceivedByOrganisation(organisationId: String): List<User> {
         return try {
-            organisationDao.getOrganisationJoinReceivedRequests(organisationId)
+            organisationDao.getOrganisationJoinRequestReceivedByOrganisation(organisationId)
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    override fun confirmOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean {
+    override fun requestConfirmedByUser(requestSendByOrganisation: RequestSendByOrganisation): Boolean {
         return try {
-            val exist = organisationDao.getOrganisationMember(organisationJoinSentRequest.organisationId,organisationJoinSentRequest.userId)
+            val exist = organisationDao.getOrganisationMember(requestSendByOrganisation.organisationId,requestSendByOrganisation.userId)
             if(exist != null) return false
             val success = organisationDao.addOrganisationMember(
                 OrganisationMember(
                     id = "",
-                    organisationId = organisationJoinSentRequest.organisationId,
-                    userId = organisationJoinSentRequest.userId,
+                    organisationId = requestSendByOrganisation.organisationId,
+                    userId = requestSendByOrganisation.userId,
                     role = 0,
                     joinedAt = System.currentTimeMillis()
                 )
             )
-            organisationDao.deleteOrganisationJoinSentRequest(organisationJoinSentRequest)
+            organisationDao.deleteOrganisationJoinRequestSendByOrganisation(requestSendByOrganisation)
             success
         } catch (e: Exception) {
             false
         }
     }
 
-    override fun declineOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean {
+    override fun requestDeclinedByUser(requestSendByOrganisation: RequestSendByOrganisation): Boolean {
         return try {
-            organisationDao.deleteOrganisationJoinSentRequest(organisationJoinSentRequest)
+            organisationDao.deleteOrganisationJoinRequestSendByOrganisation(requestSendByOrganisation)
         }catch (e: Exception){
             false
         }
     }
 
-    override fun confirmOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest,currentUserId: String): Boolean {
+    override fun requestConfirmedByOrganisation(requestSendByUser: RequestSendByUser, currentUserId: String): Boolean {
         return try {
-            val user = organisationDao.getOrganisationMember(organisationJoinReceivedRequest.organisationId,currentUserId)
+            val user = organisationDao.getOrganisationMember(requestSendByUser.organisationId,currentUserId)
             if(user == null || user.role > 1) return false
-            val exist = organisationDao.getOrganisationMember(organisationJoinReceivedRequest.organisationId,organisationJoinReceivedRequest.userId)
+            val exist = organisationDao.getOrganisationMember(requestSendByUser.organisationId,requestSendByUser.userId)
             if(exist != null) return false
             val success = organisationDao.addOrganisationMember(
                 OrganisationMember(
                     id = "",
-                    organisationId = organisationJoinReceivedRequest.organisationId,
-                    userId = organisationJoinReceivedRequest.userId,
+                    organisationId = requestSendByUser.organisationId,
+                    userId = requestSendByUser.userId,
                     role = 0,
                     joinedAt = System.currentTimeMillis()
                 )
             )
-            organisationDao.deleteOrganisationJoinReceivedRequest(organisationJoinReceivedRequest)
+            organisationDao.deleteOrganisationJoinRequestSentByUser(requestSendByUser)
             success
         } catch (e: Exception) {
             false
         }
     }
 
-    override fun declineOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest,currentUserId: String): Boolean {
+    override fun requestDeclinedByOrganisation(requestSendByUser: RequestSendByUser, currentUserId: String): Boolean {
         return try {
-            val user = organisationDao.getOrganisationMember(organisationJoinReceivedRequest.organisationId,currentUserId)
+            val user = organisationDao.getOrganisationMember(requestSendByUser.organisationId,currentUserId)
             if(user == null || user.role > 1) return false
-            organisationDao.deleteOrganisationJoinReceivedRequest(organisationJoinReceivedRequest)
+            organisationDao.deleteOrganisationJoinRequestSentByUser(requestSendByUser)
         }catch (e: Exception){
             false
         }
     }
 
-    override fun sendOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest,currentUserId: String): Boolean {
+    override fun organisationSendRequest(requestSendByOrganisation: RequestSendByOrganisation, currentUserId: String): Boolean {
         return try {
-            val user = organisationDao.getOrganisationMember(organisationJoinSentRequest.organisationId,currentUserId)
+            val user = organisationDao.getOrganisationMember(requestSendByOrganisation.organisationId,currentUserId)
             if(user == null || user.role > 1) return false
-            val exist = organisationDao.getOrganisationMember(organisationJoinSentRequest.organisationId,organisationJoinSentRequest.userId)
+            val exist = organisationDao.getOrganisationMember(requestSendByOrganisation.organisationId,requestSendByOrganisation.userId)
             if(exist != null) return false
-            organisationDao.addOrganisationJoinSentRequest(organisationJoinSentRequest)
+            organisationDao.addRequestSendByOrganisation(requestSendByOrganisation)
         }catch (e: Exception){
             false
         }
     }
 
-    override fun sendOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest): Boolean {
+    override fun userSendRequest(requestSendByUser: RequestSendByUser): Boolean {
         return try {
-            val exist = organisationDao.getOrganisationMember(organisationJoinReceivedRequest.organisationId,organisationJoinReceivedRequest.userId)
+            val exist = organisationDao.getOrganisationMember(requestSendByUser.organisationId,requestSendByUser.userId)
             if(exist != null) return false
-            organisationDao.addOrganisationJoinReceivedRequest(organisationJoinReceivedRequest)
+            organisationDao.addRequestsSendByUser(requestSendByUser)
             }catch (e: Exception){
             false
         }
     }
 
-    override fun getOrganisationJoinSentRequestsForUser(userId: String): List<OrganisationJoinSentRequest> {
+    override fun getAllRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation> {
         return try {
-            organisationDao.getOrganisationJoinSentRequestsForUser(userId)
+            organisationDao.getOrganisationJoinRequestsReceivedByUser(userId)
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    override fun getOrganisationJoinReceivedRequestsForUser(userId: String): List<OrganisationJoinReceivedRequest> {
+    override fun getAllRequestSendByUser(userId: String): List<Organisation> {
         return try {
-            organisationDao.getOrganisationJoinReceivedRequestsForUser(userId)
+            organisationDao.getOrganisationJoinRequestsSendByUser(userId)
         } catch (e: Exception) {
             emptyList()
         }

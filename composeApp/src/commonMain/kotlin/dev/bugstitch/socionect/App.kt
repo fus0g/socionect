@@ -11,12 +11,16 @@ import dev.bugstitch.socionect.domain.models.Organisation
 import dev.bugstitch.socionect.domain.models.toOrganisationDTO
 import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
+import dev.bugstitch.socionect.presentation.screens.organisation.BrowseOrganisationScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationMainScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationReceivedRequestScreen
 import dev.bugstitch.socionect.presentation.viewmodels.*
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -138,6 +142,9 @@ fun App() {
                             orgDescription = org.description,
                             orgCreatedAt = org.createdAt
                         ))
+                    },
+                    navigateDiscoverOrganisations = {
+                        navController.navigate(DiscoverOrganisations)
                     }
                 )
             }
@@ -244,6 +251,9 @@ fun App() {
                             orgDescription = organisation.description,
                             orgCreatedAt = organisation.createdAt
                         ))
+                    },
+                    onReceivedRequestsClick = {
+                        navController.navigate(OrganisationReceivedRequests(organisation.id))
                     }
                 )
             }
@@ -288,6 +298,43 @@ fun App() {
                     }
                 )
 
+            }
+
+            composable<DiscoverOrganisations> {
+                val vm = koinViewModel<BrowseOrganisationScreenViewModel>(viewModelStoreOwner = it)
+                val list = vm.results.collectAsState()
+                val state = vm.state.collectAsState()
+
+                BrowseOrganisationScreen(
+                    query = vm.query.value,
+                    results = list.value,
+                    requestedOrg = state.value.usersRequestedOrganisations,
+                    userOrg = state.value.usersCurrentOrganisation,
+                    loading = vm.loading.value,
+                    error = vm.error.value,
+                    onQueryChange = { text -> vm.setQuery(text) },
+                    onSendRequest = { org -> vm.sendRequestToOrganisation(org.id) }
+                )
+
+            }
+
+            composable<OrganisationReceivedRequests>{
+                val args: OrganisationReceivedRequests = it.toRoute()
+                val vm = koinViewModel<OrganisationReceivedRequestScreenViewModel>(viewModelStoreOwner = it)
+                vm.getRequests(args.orgId)
+                val state = vm.state.collectAsState()
+
+                OrganisationReceivedRequestScreen(
+                    list = state.value.users,
+                    onAccept = {usr->
+                        vm.acceptRequest(usr.id, args.orgId)
+                        vm.getRequests(args.orgId)
+                    },
+                    onDecline = {usr->
+                        vm.declineRequest(usr.id, args.orgId)
+                        vm.getRequests(args.orgId)
+                    },
+                )
             }
 
         }

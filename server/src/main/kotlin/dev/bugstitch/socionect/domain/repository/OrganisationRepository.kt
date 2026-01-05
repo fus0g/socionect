@@ -1,9 +1,10 @@
 package dev.bugstitch.socionect.domain.repository
 
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.OrganisationJoinReceivedRequest
-import dev.bugstitch.socionect.domain.models.OrganisationJoinSentRequest
+import dev.bugstitch.socionect.domain.models.RequestSendByUser
+import dev.bugstitch.socionect.domain.models.RequestSendByOrganisation
 import dev.bugstitch.socionect.domain.models.OrganisationMember
+import dev.bugstitch.socionect.domain.models.User
 
 interface OrganisationRepository {
 
@@ -19,28 +20,28 @@ interface OrganisationRepository {
 
     fun getOrganisationMembers(organisationId: String): List<OrganisationMember>
 
-    fun getAllOrganisationJoinSentRequests(organisationId: String): List<OrganisationJoinSentRequest>
+    fun getAllRequestsSendByOrganisation(organisationId: String): List<RequestSendByOrganisation>
 
-    fun getAllOrganisationJoinReceivedRequests(organisationId: String): List<OrganisationJoinReceivedRequest>
+    fun getAllRequestsReceivedByOrganisation(organisationId: String): List<User>
 
 
     //send by org to user
-    fun declineOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean
+    fun requestDeclinedByUser(requestSendByOrganisation: RequestSendByOrganisation): Boolean
 
-    fun confirmOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean
+    fun requestConfirmedByUser(requestSendByOrganisation: RequestSendByOrganisation): Boolean
 
-    fun sendOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest,currentUserId: String): Boolean
+    fun organisationSendRequest(requestSendByOrganisation: RequestSendByOrganisation, currentUserId: String): Boolean
 
 
     //send by user to org
-    fun confirmOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest,currentUserId: String): Boolean
+    fun requestConfirmedByOrganisation(requestSendByUser: RequestSendByUser, currentUserId: String): Boolean
 
-    fun declineOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest,currentUserId: String): Boolean
+    fun requestDeclinedByOrganisation(requestSendByUser: RequestSendByUser, currentUserId: String): Boolean
 
-    fun sendOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest): Boolean
+    fun userSendRequest(requestSendByUser: RequestSendByUser): Boolean
 
-    fun getOrganisationJoinSentRequestsForUser(userId: String): List<OrganisationJoinSentRequest>
+    fun getAllRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation>
 
-    fun getOrganisationJoinReceivedRequestsForUser(userId: String): List<OrganisationJoinReceivedRequest>
+    fun getAllRequestSendByUser(userId: String): List<Organisation>
 
 }

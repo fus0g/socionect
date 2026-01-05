@@ -1,14 +1,16 @@
 package dev.bugstitch.socionect.data.database.repository
 
-import dev.bugstitch.socionect.data.database.tables.OrganisationJoinReceivedRequests
-import dev.bugstitch.socionect.data.database.tables.OrganisationJoinSentRequests
+import dev.bugstitch.socionect.data.database.tables.OrganisationJoinRequestByUser
+import dev.bugstitch.socionect.data.database.tables.OrganisationJoinRequestByOrganisation
 import dev.bugstitch.socionect.data.database.tables.OrganisationMembers
 import dev.bugstitch.socionect.data.database.tables.Organisations
+import dev.bugstitch.socionect.data.database.tables.Users
 import dev.bugstitch.socionect.domain.database.repository.OrganisationDao
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.OrganisationJoinReceivedRequest
-import dev.bugstitch.socionect.domain.models.OrganisationJoinSentRequest
+import dev.bugstitch.socionect.domain.models.RequestSendByUser
+import dev.bugstitch.socionect.domain.models.RequestSendByOrganisation
 import dev.bugstitch.socionect.domain.models.OrganisationMember
+import dev.bugstitch.socionect.domain.models.User
 import org.bson.types.ObjectId
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -16,7 +18,6 @@ import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.collections.emptyList
@@ -177,13 +178,13 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun addOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean {
+    override fun addRequestSendByOrganisation(requestSendByOrganisation: RequestSendByOrganisation): Boolean {
         return try {
             transaction(database) {
-                OrganisationJoinSentRequests.insert {
+                OrganisationJoinRequestByOrganisation.insert {
                     it[id] = ObjectId().toHexString()
-                    it[organisationId] = organisationJoinSentRequest.organisationId
-                    it[userId] = organisationJoinSentRequest.userId
+                    it[organisationId] = requestSendByOrganisation.organisationId
+                    it[userId] = requestSendByOrganisation.userId
                     it[sentAt] = System.currentTimeMillis()
                 }.insertedCount > 0
             }
@@ -192,13 +193,13 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun addOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest): Boolean {
+    override fun addRequestsSendByUser(requestSendByUser: RequestSendByUser): Boolean {
         return try {
             transaction(database) {
-                OrganisationJoinReceivedRequests.insert {
+                OrganisationJoinRequestByUser.insert {
                     it[id] = ObjectId().toHexString()
-                    it[organisationId] = organisationJoinReceivedRequest.organisationId
-                    it[userId] = organisationJoinReceivedRequest.userId
+                    it[organisationId] = requestSendByUser.organisationId
+                    it[userId] = requestSendByUser.userId
                     it[receivedAt] = System.currentTimeMillis()
                 }.insertedCount > 0
             }
@@ -207,17 +208,17 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun getOrganisationJoinSentRequests(organisationId: String): List<OrganisationJoinSentRequest> {
+    override fun getOrganisationJoinRequestSendByOrganisation(organisationId: String): List<RequestSendByOrganisation> {
         return try{
             transaction(database) {
-                OrganisationJoinSentRequests.selectAll().where {
-                    OrganisationJoinSentRequests.organisationId eq organisationId
+                OrganisationJoinRequestByOrganisation.selectAll().where {
+                    OrganisationJoinRequestByOrganisation.organisationId eq organisationId
                 }.map {
-                    OrganisationJoinSentRequest(
-                        id = it[OrganisationJoinSentRequests.id],
-                        organisationId = it[OrganisationJoinSentRequests.organisationId],
-                        userId = it[OrganisationJoinSentRequests.userId],
-                        sentAt = it[OrganisationJoinSentRequests.sentAt]
+                    RequestSendByOrganisation(
+                        id = it[OrganisationJoinRequestByOrganisation.id],
+                        organisationId = it[OrganisationJoinRequestByOrganisation.organisationId],
+                        userId = it[OrganisationJoinRequestByOrganisation.userId],
+                        sentAt = it[OrganisationJoinRequestByOrganisation.sentAt]
                     )
                 }
             }
@@ -226,17 +227,17 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun getOrganisationJoinReceivedRequests(organisationId: String): List<OrganisationJoinReceivedRequest> {
+    override fun getOrganisationJoinRequestReceivedByOrganisation(organisationId: String): List<User> {
         return try{
             transaction(database) {
-                OrganisationJoinReceivedRequests.selectAll().where {
-                    OrganisationJoinReceivedRequests.organisationId eq organisationId
+                (OrganisationJoinRequestByUser innerJoin Users).selectAll().where {
+                    OrganisationJoinRequestByUser.organisationId eq organisationId
                 }.map {
-                    OrganisationJoinReceivedRequest(
-                        id = it[OrganisationJoinReceivedRequests.id],
-                        organisationId = it[OrganisationJoinReceivedRequests.organisationId],
-                        userId = it[OrganisationJoinReceivedRequests.userId],
-                        receivedAt = it[OrganisationJoinReceivedRequests.receivedAt]
+                    User(
+                        id = it[Users.id],
+                        name = it[Users.name],
+                        email = it[Users.email],
+                        username = it[Users.username],
                     )
                 }
             }
@@ -245,17 +246,17 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun getOrganisationJoinReceivedRequestsForUser(userId: String): List<OrganisationJoinReceivedRequest> {
+    override fun getOrganisationJoinRequestsSendByUser(userId: String): List<Organisation> {
         return try {
             transaction(database) {
-                OrganisationJoinReceivedRequests.selectAll().where {
-                    OrganisationJoinReceivedRequests.userId eq userId
+                (OrganisationJoinRequestByUser innerJoin Organisations).selectAll().where {
+                    OrganisationJoinRequestByUser.userId eq userId
                 }.map {
-                    OrganisationJoinReceivedRequest(
-                        id = it[OrganisationJoinReceivedRequests.id],
-                        organisationId = it[OrganisationJoinReceivedRequests.organisationId],
-                        userId = it[OrganisationJoinReceivedRequests.userId],
-                        receivedAt = it[OrganisationJoinReceivedRequests.receivedAt]
+                    Organisation(
+                        id = it[Organisations.id],
+                        name = it[Organisations.name],
+                        description = it[Organisations.description],
+                        createdAt = it[Organisations.createdAt]
                     )
                 }
             }
@@ -264,17 +265,17 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun getOrganisationJoinSentRequestsForUser(userId: String): List<OrganisationJoinSentRequest> {
+    override fun getOrganisationJoinRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation> {
         return try {
             transaction(database) {
-                OrganisationJoinSentRequests.selectAll().where {
-                    OrganisationJoinSentRequests.userId eq userId
+                OrganisationJoinRequestByOrganisation.selectAll().where {
+                    OrganisationJoinRequestByOrganisation.userId eq userId
                 }.map {
-                    OrganisationJoinSentRequest(
-                        id = it[OrganisationJoinSentRequests.id],
-                        organisationId = it[OrganisationJoinSentRequests.organisationId],
-                        userId = it[OrganisationJoinSentRequests.userId],
-                        sentAt = it[OrganisationJoinSentRequests.sentAt]
+                    RequestSendByOrganisation(
+                        id = it[OrganisationJoinRequestByOrganisation.id],
+                        organisationId = it[OrganisationJoinRequestByOrganisation.organisationId],
+                        userId = it[OrganisationJoinRequestByOrganisation.userId],
+                        sentAt = it[OrganisationJoinRequestByOrganisation.sentAt]
                     )
                 }
             }
@@ -283,11 +284,12 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun deleteOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean {
+    override fun deleteOrganisationJoinRequestSendByOrganisation(requestSendByOrganisation: RequestSendByOrganisation): Boolean {
         return try {
             transaction(database) {
-                OrganisationJoinSentRequests.deleteWhere {
-                    OrganisationJoinSentRequests.id eq organisationJoinSentRequest.id
+                OrganisationJoinRequestByOrganisation.deleteWhere {
+                    (OrganisationJoinRequestByOrganisation.organisationId eq requestSendByOrganisation.organisationId) and
+                            (OrganisationJoinRequestByOrganisation.userId eq requestSendByOrganisation.userId)
                 } > 0
             }
         }catch (e: Exception){
@@ -295,11 +297,12 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
         }
     }
 
-    override fun deleteOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest): Boolean {
+    override fun deleteOrganisationJoinRequestSentByUser(requestSendByUser: RequestSendByUser): Boolean {
         return try {
             transaction(database) {
-                OrganisationJoinReceivedRequests.deleteWhere {
-                    OrganisationJoinReceivedRequests.id eq organisationJoinReceivedRequest.id
+                OrganisationJoinRequestByUser.deleteWhere {
+                    (OrganisationJoinRequestByUser.organisationId eq requestSendByUser.organisationId) and
+                            (OrganisationJoinRequestByUser.userId eq requestSendByUser.userId)
                 } > 0
             }
         }catch (e: Exception){

@@ -1,9 +1,10 @@
 package dev.bugstitch.socionect.domain.database.repository
 
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.OrganisationJoinReceivedRequest
-import dev.bugstitch.socionect.domain.models.OrganisationJoinSentRequest
+import dev.bugstitch.socionect.domain.models.RequestSendByUser
+import dev.bugstitch.socionect.domain.models.RequestSendByOrganisation
 import dev.bugstitch.socionect.domain.models.OrganisationMember
+import dev.bugstitch.socionect.domain.models.User
 
 interface OrganisationDao {
 
@@ -23,20 +24,20 @@ interface OrganisationDao {
 
     fun getOrganisationMembers(organisationId: String): List<OrganisationMember>
 
-    fun addOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest) : Boolean
+    fun addRequestSendByOrganisation(requestSendByOrganisation: RequestSendByOrganisation) : Boolean
 
-    fun addOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest): Boolean
+    fun addRequestsSendByUser(requestSendByUser: RequestSendByUser): Boolean
 
-    fun getOrganisationJoinSentRequests(organisationId: String): List<OrganisationJoinSentRequest>
+    fun getOrganisationJoinRequestSendByOrganisation(organisationId: String): List<RequestSendByOrganisation>
 
-    fun getOrganisationJoinReceivedRequests(organisationId: String): List<OrganisationJoinReceivedRequest>
+    fun getOrganisationJoinRequestReceivedByOrganisation(organisationId: String): List<User>
 
-    fun getOrganisationJoinReceivedRequestsForUser(userId: String): List<OrganisationJoinReceivedRequest>
+    fun getOrganisationJoinRequestsSendByUser(userId: String): List<Organisation>
 
-    fun getOrganisationJoinSentRequestsForUser(userId: String): List<OrganisationJoinSentRequest>
+    fun getOrganisationJoinRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation>
 
-    fun deleteOrganisationJoinSentRequest(organisationJoinSentRequest: OrganisationJoinSentRequest): Boolean
+    fun deleteOrganisationJoinRequestSendByOrganisation(requestSendByOrganisation: RequestSendByOrganisation): Boolean
 
-    fun deleteOrganisationJoinReceivedRequest(organisationJoinReceivedRequest: OrganisationJoinReceivedRequest): Boolean
+    fun deleteOrganisationJoinRequestSentByUser(requestSendByUser: RequestSendByUser): Boolean
 
 }

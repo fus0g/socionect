@@ -1,17 +1,17 @@
 package dev.bugstitch.socionect.data.models
 
-import dev.bugstitch.socionect.domain.models.OrganisationJoinSentRequest
+import dev.bugstitch.socionect.domain.models.RequestSendByOrganisation
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OrganisationJoinSentRequestDTO(
+data class RequestSendByOrganisationDTO(
     val id: String = "",
     val organisationId: String = "",
     val userId: String = "",
     val sentAt: Long = 0
 )
 
-fun OrganisationJoinSentRequestDTO.toOrganisationJoinSentRequest(): OrganisationJoinSentRequest = OrganisationJoinSentRequest(
+fun RequestSendByOrganisationDTO.toRequestSendByOrganisation(): RequestSendByOrganisation = RequestSendByOrganisation(
     id = id,
     organisationId = organisationId,
     userId = userId,
