@@ -13,14 +13,18 @@ import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
 import dev.bugstitch.socionect.presentation.screens.organisation.BrowseOrganisationScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.FindAndSendRequestToUserScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationMainScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationReceivedRequestScreen
+import dev.bugstitch.socionect.presentation.screens.user.UserRequestsScreen
 import dev.bugstitch.socionect.presentation.viewmodels.*
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -148,6 +152,9 @@ fun App() {
                     },
                     navigateDiscoverOrganisations = {
                         navController.navigate(DiscoverOrganisations)
+                    },
+                    navigateToUserRequests = {
+                        navController.navigate(UserRequestsScreen)
                     }
                 )
             }
@@ -257,6 +264,9 @@ fun App() {
                     },
                     onReceivedRequestsClick = {
                         navController.navigate(OrganisationReceivedRequests(organisation.id))
+                    },
+                    onInviteUsersClick = {
+                        navController.navigate(FindAndSendRequestToUser(organisation.id))
                     }
                 )
             }
@@ -338,6 +348,50 @@ fun App() {
                     onDecline = {usr->
                         vm.declineRequest(usr.id, args.orgId)
                     },
+                )
+            }
+
+
+            composable<UserRequestsScreen> {
+                val vm = koinViewModel<UserRequestsScreenViewModel>()
+                LaunchedEffect(Unit) {
+                    vm.getSentRequests()
+                    vm.getReceivedRequests()
+                }
+
+                val state = vm.state.collectAsState()
+
+                UserRequestsScreen(
+                    sentRequests = state.value.sentRequests,
+                    receivedRequests = state.value.receivedRequests,
+                    onAccept = {
+                        vm.confirmRequest(it)
+                    },
+                    onDecline = {
+                        vm.declineRequest(it)
+                    }
+                )
+            }
+
+            composable<FindAndSendRequestToUser> {
+                val args: FindAndSendRequestToUser = it.toRoute()
+                val vm = koinViewModel<FindAndSendRequestToUserScreenViewModel>(viewModelStoreOwner = it)
+                val state = vm.state.collectAsState()
+
+                LaunchedEffect(Unit){
+                    vm.getMemberUsers(args.organisationId)
+                    vm.getRequestedUsers(args.organisationId)
+                }
+
+                FindAndSendRequestToUserScreen(
+                    query = vm.query.value,
+                    results = state.value.searchedUsers,
+                    requestedUsers = state.value.requestedUsers,
+                    memberUsers = state.value.memberUsers,
+                    loading = vm.loading.value,
+                    error = vm.error.value,
+                    onQueryChange = {usr-> vm.setQuery(usr) },
+                    onRequestClick = {  usr-> vm.sendRequestToUser(usr.id,args.organisationId) }
                 )
             }
 

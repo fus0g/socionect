@@ -19,10 +19,23 @@ interface OrganisationRepository {
 
     suspend fun getAllRequestsSendByUserToOrg(token: String): Flow<NetworkResult<List<Organisation>>>
 
+    suspend fun getRequestsReceivedByUser(token: String): Flow<NetworkResult<List<Organisation>>>
+
+    suspend fun userAcceptsRequest(organisationId: String,token: String): Flow<NetworkResult<Boolean>>
+
+    suspend fun userDeclinesRequest(organisationId: String,token: String): Flow<NetworkResult<Boolean>>
+
+
     suspend fun getRequestsReceivedByOrganisation(organisationId: String,token: String): Flow<NetworkResult<List<User>>>
 
     suspend fun organisationAcceptsRequest(userId: String,organisationId: String,token: String): Flow<NetworkResult<Boolean>>
 
     suspend fun organisationDeclinesRequest(userId: String,organisationId: String,token: String): Flow<NetworkResult<Boolean>>
+
+    suspend fun getAllMembers(organisationId: String,token: String) : Flow<NetworkResult<List<User>>>
+
+    suspend fun getRequestsSendToUser(organisationId: String,token: String):Flow<NetworkResult<List<User>>>
+
+    suspend fun sendRequestToUser(userId: String,organisationId: String,token: String): Flow<NetworkResult<Boolean>>
 
 }

@@ -84,15 +84,19 @@ fun Application.organisationRouting(organisationRepository: OrganisationReposito
             post("/organisation/getRequestsSendToUser"){
                 val organisationId = call.receive<OrganisationDTO>()
                 val result = organisationRepository.getAllRequestsSendByOrganisation(organisationId.id)
-                call.respond(result.map { it.toRequestSendByOrganisationDTO() })
+                call.respond(result.map { it.toUserDTO() })
             }
 
 
             //confirmed by user
-            post("/organisation/conformRequestReceivedFromOrganisation"){
+            post("/organisation/userConfirmRequestReceivedFromOrganisation"){
                 val organisationJoinSentRequest = call.receive<RequestSendByOrganisationDTO>()
-
-                val result = organisationRepository.requestConfirmedByUser(organisationJoinSentRequest.toRequestSendByOrganisation())
+                val principal = call.principal<JWTPrincipal>() ?: return@post
+                val userId = principal.payload.getClaim("id").asString()
+                val result = organisationRepository.requestConfirmedByUser(
+                    organisationJoinSentRequest.toRequestSendByOrganisation()
+                        .copy(userId = userId)
+                )
                 if(result){
                     call.respond(HttpStatusCode.OK)
                 }else {
@@ -102,9 +106,14 @@ fun Application.organisationRouting(organisationRepository: OrganisationReposito
             }
 
             //declined by user
-            post("/organisation/declineRequestFromOrganisation"){
+            post("/organisation/userDeclineRequestFromOrganisation"){
                 val organisationJoinSentRequest = call.receive<RequestSendByOrganisationDTO>()
-                val result = organisationRepository.requestDeclinedByUser(organisationJoinSentRequest.toRequestSendByOrganisation())
+                val principal = call.principal<JWTPrincipal>() ?: return@post
+                val userId = principal.payload.getClaim("id").asString()
+                val result = organisationRepository.requestDeclinedByUser(
+                    organisationJoinSentRequest.toRequestSendByOrganisation()
+                    .copy(userId = userId)
+                )
                 if(result){
                     call.respond(HttpStatusCode.OK)
                 }
@@ -133,7 +142,7 @@ fun Application.organisationRouting(organisationRepository: OrganisationReposito
                 val principal = call.principal<JWTPrincipal>() ?: return@get
                 val userId = principal.payload.getClaim("id").asString()
                 val result = organisationRepository.getAllRequestsReceivedByUser(userId)
-                call.respond(result.map { it.toRequestSendByOrganisationDTO() })
+                call.respond(result.map { it.toOrganisationDTO() })
             }
 
             //user sends request to org
@@ -172,6 +181,14 @@ fun Application.organisationRouting(organisationRepository: OrganisationReposito
                     call.respond(HttpStatusCode.OK)
                 }else {
                     call.respond(HttpStatusCode.InternalServerError)
+                }
+            }
+
+            post("/organisation/getAllMembers"){
+                val org = call.receive<OrganisationDTO>()
+                val result = organisationRepository.getOrganisationMembers(org.id)
+                if(result.isNotEmpty()){
+                    call.respond(result.map { it.toUserDTO() })
                 }
             }
 

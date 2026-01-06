@@ -18,8 +18,10 @@ import dev.bugstitch.socionect.presentation.viewmodels.SignUpScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.UserSearchViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -74,6 +76,8 @@ val sharedModule = module {
     viewModelOf(::CreateOrganisationSubtopicScreenViewModel)
     viewModelOf(::BrowseOrganisationScreenViewModel)
     viewModelOf(::OrganisationReceivedRequestScreenViewModel)
+    viewModelOf(::UserRequestsScreenViewModel)
+    viewModelOf(::FindAndSendRequestToUserScreenViewModel)
 
     singleOf(::HomeScreenViewModel)
 }

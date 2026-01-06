@@ -46,11 +46,11 @@ class OrganisationRepositoryImpl(private val organisationDao: OrganisationDao): 
         return organisationDao.addOrganisationMember(organisationMember)
     }
 
-    override fun getOrganisationMembers(organisationId: String): List<OrganisationMember> {
+    override fun getOrganisationMembers(organisationId: String): List<User> {
         return organisationDao.getOrganisationMembers(organisationId)
     }
 
-    override fun getAllRequestsSendByOrganisation(organisationId: String): List<RequestSendByOrganisation> {
+    override fun getAllRequestsSendByOrganisation(organisationId: String): List<User> {
         return try {
             organisationDao.getOrganisationJoinRequestSendByOrganisation(organisationId)
         } catch (e: Exception) {
@@ -148,7 +148,7 @@ class OrganisationRepositoryImpl(private val organisationDao: OrganisationDao): 
         }
     }
 
-    override fun getAllRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation> {
+    override fun getAllRequestsReceivedByUser(userId: String): List<Organisation> {
         return try {
             organisationDao.getOrganisationJoinRequestsReceivedByUser(userId)
         } catch (e: Exception) {

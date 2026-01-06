@@ -51,3 +51,11 @@ data class ChatRoom(
     val otherUserName: String
 )
 
+@Serializable
+object UserRequestsScreen
+
+@Serializable
+data class FindAndSendRequestToUser(
+    val organisationId: String
+)
+

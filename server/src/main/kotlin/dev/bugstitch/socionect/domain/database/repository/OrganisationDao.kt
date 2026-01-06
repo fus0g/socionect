@@ -22,19 +22,19 @@ interface OrganisationDao {
 
     fun addOrganisationMember(organisationMember: OrganisationMember): Boolean
 
-    fun getOrganisationMembers(organisationId: String): List<OrganisationMember>
+    fun getOrganisationMembers(organisationId: String): List<User>
 
     fun addRequestSendByOrganisation(requestSendByOrganisation: RequestSendByOrganisation) : Boolean
 
     fun addRequestsSendByUser(requestSendByUser: RequestSendByUser): Boolean
 
-    fun getOrganisationJoinRequestSendByOrganisation(organisationId: String): List<RequestSendByOrganisation>
+    fun getOrganisationJoinRequestSendByOrganisation(organisationId: String): List<User>
 
     fun getOrganisationJoinRequestReceivedByOrganisation(organisationId: String): List<User>
 
     fun getOrganisationJoinRequestsSendByUser(userId: String): List<Organisation>
 
-    fun getOrganisationJoinRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation>
+    fun getOrganisationJoinRequestsReceivedByUser(userId: String): List<Organisation>
 
     fun deleteOrganisationJoinRequestSendByOrganisation(requestSendByOrganisation: RequestSendByOrganisation): Boolean
 

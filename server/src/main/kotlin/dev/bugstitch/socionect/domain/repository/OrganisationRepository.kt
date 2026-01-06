@@ -18,9 +18,9 @@ interface OrganisationRepository {
 
     fun addOrganisationMember(organisationMember: OrganisationMember,currentUserId: String): Boolean
 
-    fun getOrganisationMembers(organisationId: String): List<OrganisationMember>
+    fun getOrganisationMembers(organisationId: String): List<User>
 
-    fun getAllRequestsSendByOrganisation(organisationId: String): List<RequestSendByOrganisation>
+    fun getAllRequestsSendByOrganisation(organisationId: String): List<User>
 
     fun getAllRequestsReceivedByOrganisation(organisationId: String): List<User>
 
@@ -40,7 +40,7 @@ interface OrganisationRepository {
 
     fun userSendRequest(requestSendByUser: RequestSendByUser): Boolean
 
-    fun getAllRequestsReceivedByUser(userId: String): List<RequestSendByOrganisation>
+    fun getAllRequestsReceivedByUser(userId: String): List<Organisation>
 
     fun getAllRequestSendByUser(userId: String): List<Organisation>
 

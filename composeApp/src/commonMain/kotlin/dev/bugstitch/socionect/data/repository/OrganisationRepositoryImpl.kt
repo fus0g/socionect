@@ -4,6 +4,7 @@ import dev.bugstitch.socionect.EMU_SERVER
 import dev.bugstitch.socionect.SERVER
 import dev.bugstitch.socionect.WEB_SERVER
 import dev.bugstitch.socionect.data.models.OrganisationDTO
+import dev.bugstitch.socionect.data.models.RequestSendByOrganisationDTO
 import dev.bugstitch.socionect.data.models.RequestSendByUserDTO
 import dev.bugstitch.socionect.data.models.UserDTO
 import dev.bugstitch.socionect.data.models.toOrganisation
@@ -157,11 +158,85 @@ class OrganisationRepositoryImpl(
                     CustomLog("ORGS",orgs.toString())
                     emit(NetworkResult.Success(orgs.map { it.toOrganisation() }))
                 }else{
-                    CustomLog("ERRR",response.status.description)
                     emit(NetworkResult.Error(response.status.description))
                 }
             }catch (e: Exception){
-                CustomLog("ERRR1",e.message.toString())
+                emit(NetworkResult.Error(e.message.toString()))
+            }
+        }
+    }
+
+    override suspend fun getRequestsReceivedByUser(token: String): Flow<NetworkResult<List<Organisation>>> {
+        return flow {
+            emit(NetworkResult.Loading())
+            try {
+                val request = httpClient.get("$endpoint/organisation/getRequestsReceivedByUser"){
+                    header("Authorization", "Bearer $token")
+                }
+                if(request.status == HttpStatusCode.OK)
+                {
+                    val orgs = request.body<List<OrganisationDTO>>()
+                    emit(NetworkResult.Success(orgs.map { it.toOrganisation() }))
+                }else{
+                    emit(NetworkResult.Error(request.status.description))
+                }
+
+            }catch (e: Exception){
+                emit(NetworkResult.Error(e.message.toString()))
+            }
+        }
+    }
+
+    override suspend fun userAcceptsRequest(
+        organisationId: String,
+        token: String
+    ): Flow<NetworkResult<Boolean>> {
+        return flow {
+            emit(NetworkResult.Loading())
+            try {
+                val request = httpClient.post("$endpoint/organisation/userConfirmRequestReceivedFromOrganisation"){
+                    contentType(ContentType.Application.Json)
+                    header("Authorization", "Bearer $token")
+                    setBody(RequestSendByOrganisationDTO(
+                        organisationId = organisationId)
+                    )
+                }
+                if(request.status == HttpStatusCode.OK)
+                {
+                    emit(NetworkResult.Success(true))
+                }else{
+                    emit(NetworkResult.Error(request.status.description))
+                }
+            }catch (e: Exception){
+                emit(NetworkResult.Error(e.message.toString()))
+            }
+        }
+    }
+
+    override suspend fun userDeclinesRequest(
+        organisationId: String,
+        token: String
+    ): Flow<NetworkResult<Boolean>> {
+        return flow {
+            emit(NetworkResult.Loading())
+            try {
+                val request =
+                    httpClient.post("$endpoint/organisation/userDeclineRequestFromOrganisation") {
+                        contentType(ContentType.Application.Json)
+                        header("Authorization", "Bearer $token")
+                        setBody(
+                            RequestSendByOrganisationDTO(
+                                organisationId = organisationId
+                            )
+                        )
+                    }
+
+                if (request.status == HttpStatusCode.OK) {
+                    emit(NetworkResult.Success(true))
+                } else {
+                    emit(NetworkResult.Error(request.status.description))
+                }
+            } catch (e: Exception) {
                 emit(NetworkResult.Error(e.message.toString()))
             }
         }
@@ -181,11 +256,9 @@ class OrganisationRepositoryImpl(
                         id = organisationId
                     ))
                 }
-                CustomLog("ORGS",response.toString())
                 if(response.status == HttpStatusCode.OK)
                 {
                     val users = response.body<List<UserDTO>>()
-                    CustomLog("ORGS",users.toString())
                     emit(NetworkResult.Success(users.map { it.toUser() }))
                 }else{
                     emit(NetworkResult.Error(response.status.description))
@@ -246,6 +319,90 @@ class OrganisationRepositoryImpl(
                     emit(NetworkResult.Success(true))
                 }else{
                     emit(NetworkResult.Error(request.status.description))
+                }
+            }catch (e: Exception){
+                emit(NetworkResult.Error(e.message.toString()))
+            }
+        }
+    }
+
+
+    override suspend fun getAllMembers(
+        organisationId: String,
+        token: String
+    ): Flow<NetworkResult<List<User>>> {
+        return flow {
+            emit(NetworkResult.Loading())
+            try{
+                val response = httpClient.post("$endpoint/organisation/getAllMembers"){
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(OrganisationDTO(
+                        id = organisationId
+                    ))
+                }
+                if(response.status == HttpStatusCode.OK)
+                {
+                    val users = response.body<List<UserDTO>>()
+                    emit(NetworkResult.Success(users.map { it.toUser() }))
+                }else{
+                    emit(NetworkResult.Error(response.status.description))
+                }
+            }catch (e: Exception){
+                emit(NetworkResult.Error(e.message.toString()))
+            }
+        }
+    }
+
+    override suspend fun getRequestsSendToUser(
+        organisationId: String,
+        token: String
+    ): Flow<NetworkResult<List<User>>> {
+        return flow {
+            emit(NetworkResult.Loading())
+            try{
+                val response = httpClient.post("$endpoint/organisation/getRequestsSendToUser"){
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(OrganisationDTO(
+                        id = organisationId
+                    ))
+                }
+                if(response.status == HttpStatusCode.OK)
+                {
+                    val users = response.body<List<UserDTO>>()
+                    emit(NetworkResult.Success(users.map { it.toUser() }))
+                }else{
+                    emit(NetworkResult.Error(response.status.description))
+                }
+            }catch (e: Exception){
+                emit(NetworkResult.Error(e.message.toString()))
+            }
+        }
+    }
+
+    override suspend fun sendRequestToUser(
+        userId: String,
+        organisationId: String,
+        token: String
+    ): Flow<NetworkResult<Boolean>> {
+        return flow {
+            emit(NetworkResult.Loading())
+            try {
+                val response = httpClient.post("$endpoint/organisation/sendRequestToUser"){
+                    header("Authorization", "Bearer $token")
+                    contentType(ContentType.Application.Json)
+                    setBody(RequestSendByOrganisationDTO(
+                        userId = userId,
+                        organisationId = organisationId
+                    ))
+                }
+                if(response.status == HttpStatusCode.OK)
+                {
+                    emit(NetworkResult.Success(true))
+                }
+                else{
+                    emit(NetworkResult.Error(response.status.description))
                 }
             }catch (e: Exception){
                 emit(NetworkResult.Error(e.message.toString()))
