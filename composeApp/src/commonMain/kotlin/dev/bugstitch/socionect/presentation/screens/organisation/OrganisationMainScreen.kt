@@ -25,7 +25,8 @@ fun OrganisationMainScreen(
     onInviteUsersClick: (organisation: Organisation) -> Unit,
     coalitions: List<Coalition>,
     onCreateCoalitionClick: (organisation: Organisation) -> Unit,
-    onCoalitionRequestsClick:(organisation: Organisation)->Unit
+    onCoalitionRequestsClick:(organisation: Organisation)->Unit,
+    onCoalitionPressed: (Coalition) -> Unit
 ){
     Scaffold(modifier = Modifier.statusBarsPadding(),topBar = {
         Text(organisation.name)
@@ -50,7 +51,7 @@ fun OrganisationMainScreen(
 
             coalitions.forEach {
                 item {
-                    Column(modifier = Modifier.clickable { }) {
+                    Column(modifier = Modifier.clickable {onCoalitionPressed(it) }) {
                         Text(it.name)
                         Text(it.description)
                     }

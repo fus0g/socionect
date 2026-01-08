@@ -8,6 +8,7 @@ data class OrganisationSubtopicMessageDTO(
     val id: String = "",
     val organisationSubtopicId: String = "",
     val senderId: String = "",
+    val senderName: String = "",
     val message: String = "",
     val timestamp: Long = 0
 )
@@ -16,6 +17,7 @@ fun OrganisationSubtopicMessageDTO.toOrganisationSubtopicMessage(): Organisation
     id = id,
     organisationSubtopicId = organisationSubtopicId,
     senderId = senderId,
+    senderName = senderName,
     message = message,
     timestamp = timestamp
 )

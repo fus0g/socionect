@@ -18,6 +18,8 @@ import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicS
 import dev.bugstitch.socionect.presentation.screens.organisation.FindAndSendRequestToUserScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationMainScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationReceivedRequestScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.chat.OrganisationCoalitionChatScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.chat.OrganisationSubtopicChatScreen
 import dev.bugstitch.socionect.presentation.screens.user.UserRequestsScreen
 import dev.bugstitch.socionect.presentation.viewmodels.*
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
@@ -25,9 +27,11 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionReq
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalitionScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationCoalitionChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationSubtopicChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -258,7 +262,12 @@ fun App() {
                 OrganisationMainScreen(
                     organisation = organisation,
                     subtopics = state.subtopics,
-                    onSubtopicPressed = {},
+                    onSubtopicPressed = {
+                        navController.navigate(SubtopicChatRoom(
+                            subtopicId = it.id,
+                            subtopicName = it.name
+                        ))
+                    },
                     onSubtopicCreatePressed = {
                         navController.navigate(CreateOrganisationSubtopic(
                             orgId = organisation.id,
@@ -288,6 +297,12 @@ fun App() {
                             orgName = organisation.name,
                             orgDescription = organisation.description,
                             orgCreatedAt = organisation.createdAt
+                        ))
+                    },
+                    onCoalitionPressed = {
+                        navController.navigate(CoalitionChatRoom(
+                            coalitionId = it.id,
+                            coalitionName = it.name
                         ))
                     }
                 )
@@ -470,6 +485,54 @@ fun App() {
                     onDecline = { r->
                         vm.declineRequest(r,org)
                     }
+                )
+            }
+
+            composable<SubtopicChatRoom> { backStackEntry ->
+                val args: SubtopicChatRoom = backStackEntry.toRoute()
+
+                val subtopicId = args.subtopicId
+                val subtopicName = args.subtopicName
+
+                val vm = koinViewModel<OrganisationSubtopicChatViewModel>(viewModelStoreOwner = backStackEntry)
+
+                val messages by vm.messages.collectAsState()
+                val loading by vm.loading.collectAsState()
+
+                LaunchedEffect(subtopicName) {
+                    vm.loadChat(subtopicId)
+                }
+
+                OrganisationSubtopicChatScreen(
+                    chatTitle = subtopicName,
+                    messages = messages,
+                    loading = loading,
+                    onSend = { text -> vm.sendMessage(text, subtopicId) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable<CoalitionChatRoom> { backStackEntry ->
+                val args: CoalitionChatRoom = backStackEntry.toRoute()
+
+                val coalitionId = args.coalitionId
+                val coalitionName = args.coalitionName
+
+                val vm = koinViewModel<OrganisationCoalitionChatViewModel>(viewModelStoreOwner = backStackEntry)
+
+                val messages by vm.messages.collectAsState()
+                val loading by vm.loading.collectAsState()
+
+                LaunchedEffect(coalitionName) {
+                    vm.loadChat(coalitionId)
+                }
+
+                OrganisationCoalitionChatScreen(
+                    chatTitle = coalitionName,
+                    messages = messages,
+                    loading = loading,
+                    onSend = { text -> vm.sendMessage(text, coalitionId) },
+                    onBack = { navController.popBackStack() }
                 )
             }
 

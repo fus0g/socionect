@@ -13,7 +13,7 @@ interface CoalitionDao {
 
     fun addOrganisationToCoalition(coalitionOrganisation: CoalitionOrganisation) : CoalitionOrganisation?
 
-    fun getAllCoalitionOrganizations(organisationId: String): List<Organisation>
+    fun getAllCoalitionOrganizations(coalitionId: String): List<Organisation>
 
     fun getAllOrganisationCoalitions(id: String): List<Coalition>
 

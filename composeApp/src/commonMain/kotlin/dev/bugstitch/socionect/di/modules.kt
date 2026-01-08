@@ -2,11 +2,13 @@ package dev.bugstitch.socionect.di
 
 import dev.bugstitch.socionect.data.repository.CoalitionRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OneToOneChatRepositoryImpl
+import dev.bugstitch.socionect.data.repository.OrganisationChatRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OrganisationRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OrganisationSubtopicRepositoryImpl
 import dev.bugstitch.socionect.data.repository.UserRepositoryImpl
 import dev.bugstitch.socionect.domain.repository.CoalitionRepository
 import dev.bugstitch.socionect.domain.repository.OneToOneChatRepository
+import dev.bugstitch.socionect.domain.repository.OrganisationChatRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
 import dev.bugstitch.socionect.domain.repository.UserRepository
@@ -23,8 +25,10 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionReq
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalitionScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationCoalitionChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationSubtopicChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -70,6 +74,8 @@ val sharedModule = module {
 
     single<CoalitionRepository> { CoalitionRepositoryImpl(get()) }
 
+    single < OrganisationChatRepository>{ OrganisationChatRepositoryImpl(get()) }
+
     viewModelOf(::LoginScreenViewModel)
     viewModelOf(::SignUpScreenViewModel)
     viewModelOf(::LandingScreenViewModel)
@@ -85,6 +91,8 @@ val sharedModule = module {
     viewModelOf(::FindAndSendRequestToUserScreenViewModel)
     viewModelOf(::CreateCoalitionScreenViewModel)
     viewModelOf(::CoalitionRequestsScreenViewModel)
+    viewModelOf(::OrganisationSubtopicChatViewModel)
+    viewModelOf(::OrganisationCoalitionChatViewModel)
 
     singleOf(::HomeScreenViewModel)
 }

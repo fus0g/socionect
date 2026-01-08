@@ -75,3 +75,15 @@ data class CoalitionRequestScreen(
     val orgCreatedAt: Long
 )
 
+@Serializable
+data class SubtopicChatRoom(
+    val subtopicId: String,
+    val subtopicName: String
+)
+
+@Serializable
+data class CoalitionChatRoom(
+    val coalitionId: String,
+    val coalitionName: String
+)
+

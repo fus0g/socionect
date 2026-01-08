@@ -81,10 +81,10 @@ class CoalitionDaoImpl(
 
     }
 
-    override fun getAllCoalitionOrganizations(organisationId: String): List<Organisation> {
+    override fun getAllCoalitionOrganizations(coalitionId: String): List<Organisation> {
         return transaction(database) {
             (CoalitionOrganisations innerJoin Organisations).selectAll().where{
-                CoalitionOrganisations.organisationId eq organisationId
+                CoalitionOrganisations.coalitionId eq coalitionId
             }.map {
                 Organisation(
                     id = it[Organisations.id],
