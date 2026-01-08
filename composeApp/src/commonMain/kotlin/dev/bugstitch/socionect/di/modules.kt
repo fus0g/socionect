@@ -1,9 +1,11 @@
 package dev.bugstitch.socionect.di
 
+import dev.bugstitch.socionect.data.repository.CoalitionRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OneToOneChatRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OrganisationRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OrganisationSubtopicRepositoryImpl
 import dev.bugstitch.socionect.data.repository.UserRepositoryImpl
+import dev.bugstitch.socionect.domain.repository.CoalitionRepository
 import dev.bugstitch.socionect.domain.repository.OneToOneChatRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
@@ -17,6 +19,8 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.Organisation
 import dev.bugstitch.socionect.presentation.viewmodels.SignUpScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.UserSearchViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionRequestsScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalitionScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
@@ -64,6 +68,7 @@ val sharedModule = module {
 
     single<OrganisationSubtopicRepository> { OrganisationSubtopicRepositoryImpl(get()) }
 
+    single<CoalitionRepository> { CoalitionRepositoryImpl(get()) }
 
     viewModelOf(::LoginScreenViewModel)
     viewModelOf(::SignUpScreenViewModel)
@@ -78,6 +83,8 @@ val sharedModule = module {
     viewModelOf(::OrganisationReceivedRequestScreenViewModel)
     viewModelOf(::UserRequestsScreenViewModel)
     viewModelOf(::FindAndSendRequestToUserScreenViewModel)
+    viewModelOf(::CreateCoalitionScreenViewModel)
+    viewModelOf(::CoalitionRequestsScreenViewModel)
 
     singleOf(::HomeScreenViewModel)
 }

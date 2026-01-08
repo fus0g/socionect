@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.bugstitch.socionect.data.repository.PreferenceStore
+import dev.bugstitch.socionect.domain.models.Coalition
 import dev.bugstitch.socionect.domain.models.Organisation
 import dev.bugstitch.socionect.domain.models.OrganisationSubtopic
+import dev.bugstitch.socionect.domain.repository.CoalitionRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
 import dev.bugstitch.socionect.utils.NetworkResult
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 class OrganisationMainScreenViewModel(
     private val organisationRepository: OrganisationRepository,
     private val organisationSubtopicRepository: OrganisationSubtopicRepository,
+    private val coalitionRepository: CoalitionRepository,
     private val settingsRepository: PreferenceStore
 ): ViewModel() {
 
@@ -28,6 +31,8 @@ class OrganisationMainScreenViewModel(
     init {
         token.value = settingsRepository.getPreference("access_token")
     }
+
+
 
 
     fun fetchSubtopics(organisationId: String){
@@ -56,10 +61,35 @@ class OrganisationMainScreenViewModel(
         }
     }
 
+    fun fetchCoalitions(organisationId: String){
+        if(token.value != null){
+            viewModelScope.launch {
+                _state.value = _state.value.copy(loading = true)
+                coalitionRepository.getAllCoalitions(token.value!!, Organisation(
+                    id = organisationId,
+                    name = "",
+                    description = "",
+                    createdAt = 0)).collect{
+                        when (it) {
+                            is NetworkResult.Success -> {
+                                _state.value = _state.value.copy(
+                                    coalitions = it.data,
+                                    loading = false,
+                                    error = null
+                                )
+                            }
 
+                            else -> {}
+                        }
+                }
+
+            }
+        }
+    }
 
     data class OrganisationMainScreenState(
         val subtopics: List<OrganisationSubtopic> = emptyList(),
+        val coalitions: List<Coalition> = emptyList(),
         val loading: Boolean = false,
         val error:String? = null
     )

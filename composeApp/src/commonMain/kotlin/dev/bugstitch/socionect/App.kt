@@ -12,6 +12,8 @@ import dev.bugstitch.socionect.domain.models.toOrganisationDTO
 import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
 import dev.bugstitch.socionect.presentation.screens.organisation.BrowseOrganisationScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.CoalitionRequestsScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.CreateCoalitionScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.FindAndSendRequestToUserScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationMainScreen
@@ -19,6 +21,8 @@ import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationRec
 import dev.bugstitch.socionect.presentation.screens.user.UserRequestsScreen
 import dev.bugstitch.socionect.presentation.viewmodels.*
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionRequestsScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalitionScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
@@ -246,6 +250,7 @@ fun App() {
                 )
                 val vm = koinViewModel<OrganisationMainScreenViewModel>(viewModelStoreOwner = backStackEntry)
                 vm.fetchSubtopics(organisation.id)
+                vm.fetchCoalitions(organisation.id)
                 val state by vm.state.collectAsState()
 
 
@@ -267,6 +272,23 @@ fun App() {
                     },
                     onInviteUsersClick = {
                         navController.navigate(FindAndSendRequestToUser(organisation.id))
+                    },
+                    coalitions = state.coalitions,
+                    onCreateCoalitionClick = {
+                        navController.navigate(CreateCoalition(
+                            orgId = organisation.id,
+                            orgName = organisation.name,
+                            orgDescription = organisation.description,
+                            orgCreatedAt = organisation.createdAt
+                        ))
+                    },
+                    onCoalitionRequestsClick = {
+                        navController.navigate(CoalitionRequestScreen(
+                            orgId = organisation.id,
+                            orgName = organisation.name,
+                            orgDescription = organisation.description,
+                            orgCreatedAt = organisation.createdAt
+                        ))
                     }
                 )
             }
@@ -392,6 +414,62 @@ fun App() {
                     error = vm.error.value,
                     onQueryChange = {usr-> vm.setQuery(usr) },
                     onRequestClick = {  usr-> vm.sendRequestToUser(usr.id,args.organisationId) }
+                )
+            }
+
+            composable<CreateCoalition> {
+                val args: CreateCoalition = it.toRoute()
+                val vm = koinViewModel<CreateCoalitionScreenViewModel>(viewModelStoreOwner = it)
+                val orgs = vm.results.collectAsState()
+
+                LaunchedEffect(vm.created.value){
+                    if(vm.created.value){
+                        navController.navigate(OrganisationMainScreen(
+                            orgId = args.orgId,
+                            orgName = args.orgName,
+                            orgDescription = args.orgDescription,
+                            orgCreatedAt = args.orgCreatedAt
+                        )) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+
+                CreateCoalitionScreen(
+                    name = vm.name.value,
+                    description = vm.description.value,
+                    onNameChange = {n-> vm.setName(n) },
+                    onDescriptionChange = {d-> vm.setDescription(d) },
+                    searchValue = vm.query.value,
+                    onSearchValueChange = {q-> vm.setQuery(q) },
+                    organisations = orgs.value,
+                    onOrganisationSelected = {org-> vm.addOrganisation(org) },
+                    selectedOrganisations = vm.addedOrganisations,
+                    onCreateClick = { vm.createCoalition(args.orgId) }
+                )
+            }
+
+            composable<CoalitionRequestScreen> {
+                val args: CreateCoalition = it.toRoute()
+                val vm = koinViewModel<CoalitionRequestsScreenViewModel>(viewModelStoreOwner = it)
+                val org = Organisation(
+                    id = args.orgId,
+                    name = args.orgName,
+                    description = args.orgDescription,
+                    createdAt = args.orgCreatedAt
+                )
+                LaunchedEffect(Unit){
+                    vm.getRequests(org)
+                }
+                val list = vm.list.collectAsState()
+                CoalitionRequestsScreen(
+                    list = list.value,
+                    onAccept = { r->
+                        vm.acceptRequest(r,org)
+                    },
+                    onDecline = { r->
+                        vm.declineRequest(r,org)
+                    }
                 )
             }
 

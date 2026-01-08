@@ -1,17 +1,21 @@
 package dev.bugstitch.socionect.di
 
+import dev.bugstitch.socionect.data.database.repository.CoalitionDaoImpl
 import dev.bugstitch.socionect.data.database.repository.OneToOneChatDaoImpl
 import dev.bugstitch.socionect.data.database.repository.OrganisationDaoImpl
 import dev.bugstitch.socionect.data.database.repository.OrganisationSubtopicDaoImpl
 import dev.bugstitch.socionect.data.database.repository.UserDaoImpl
+import dev.bugstitch.socionect.data.repository.CoalitionRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OneToOneChatRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OrganisationRepositoryImpl
 import dev.bugstitch.socionect.data.repository.OrganisationSubtopicRepositoryImpl
 import dev.bugstitch.socionect.data.repository.UserRepositoryImpl
+import dev.bugstitch.socionect.domain.database.repository.CoalitionDao
 import dev.bugstitch.socionect.domain.database.repository.OneToOneChatDao
 import dev.bugstitch.socionect.domain.database.repository.OrganisationDao
 import dev.bugstitch.socionect.domain.database.repository.OrganisationSubtopicDao
 import dev.bugstitch.socionect.domain.database.repository.UserDao
+import dev.bugstitch.socionect.domain.repository.CoalitionRepository
 import dev.bugstitch.socionect.domain.repository.OneToOneChatRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationRepository
 import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
@@ -34,11 +38,13 @@ val KoinModule = module {
     single<OneToOneChatDao> { OneToOneChatDaoImpl(get<Database>()) }
     single<OrganisationDao>{ OrganisationDaoImpl(get<Database>()) }
     single<OrganisationSubtopicDao>{ OrganisationSubtopicDaoImpl(get<Database>()) }
+    single<CoalitionDao>{ CoalitionDaoImpl(get<Database>()) }
 
 
     single<UserRepository>{ UserRepositoryImpl(get()) }
     single<OneToOneChatRepository> { OneToOneChatRepositoryImpl(get(),get()) }
     single<OrganisationRepository> { OrganisationRepositoryImpl(get()) }
     single<OrganisationSubtopicRepository> { OrganisationSubtopicRepositoryImpl(get(), get()) }
+    single<CoalitionRepository> { CoalitionRepositoryImpl(get(),get()) }
 
 }

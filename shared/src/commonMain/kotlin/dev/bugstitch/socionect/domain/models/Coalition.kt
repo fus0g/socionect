@@ -3,10 +3,10 @@ package dev.bugstitch.socionect.domain.models
 import dev.bugstitch.socionect.data.models.CoalitionDTO
 
 data class Coalition(
-    val id: String,
-    val name: String,
-    val description: String,
-    val createdAt: Long
+    val id: String = "",
+    val name: String = "",
+    val description: String = "",
+    val createdAt: Long = 0
 )
 
 fun Coalition.toCoalitionDTO(): CoalitionDTO = CoalitionDTO(

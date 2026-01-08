@@ -59,3 +59,19 @@ data class FindAndSendRequestToUser(
     val organisationId: String
 )
 
+@Serializable
+data class CreateCoalition(
+    val orgId: String,
+    val orgName: String,
+    val orgDescription: String,
+    val orgCreatedAt: Long
+)
+
+@Serializable
+data class CoalitionRequestScreen(
+    val orgId: String,
+    val orgName: String,
+    val orgDescription: String,
+    val orgCreatedAt: Long
+)
+
