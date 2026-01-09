@@ -7,12 +7,6 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
-object Signup
-
-@Serializable
-object Login
-
-@Serializable
 object Landing
 
 @Serializable
@@ -86,4 +80,7 @@ data class CoalitionChatRoom(
     val coalitionId: String,
     val coalitionName: String
 )
+
+@Serializable
+object BaseSignupLogin
 

@@ -1,16 +1,19 @@
 package dev.bugstitch.socionect
 
 import androidx.compose.material3.*
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import dev.bugstitch.socionect.data.models.toOrganisation
+import androidx.window.core.layout.WindowSizeClass
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.toOrganisationDTO
 import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
+import dev.bugstitch.socionect.presentation.screens.common.BaseSignupLoginScreen
+import dev.bugstitch.socionect.presentation.screens.common.LoginScreen
+import dev.bugstitch.socionect.presentation.screens.common.SignUpScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.BrowseOrganisationScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CoalitionRequestsScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateCoalitionScreen
@@ -21,6 +24,7 @@ import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationRec
 import dev.bugstitch.socionect.presentation.screens.organisation.chat.OrganisationCoalitionChatScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.chat.OrganisationSubtopicChatScreen
 import dev.bugstitch.socionect.presentation.screens.user.UserRequestsScreen
+import dev.bugstitch.socionect.presentation.theme.CustomColors
 import dev.bugstitch.socionect.presentation.viewmodels.*
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionRequestsScreenViewModel
@@ -33,8 +37,6 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.Organisation
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationSubtopicChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -42,8 +44,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    MaterialTheme(colorScheme = CustomColors.LightColorScheme) {
         val navController = rememberNavController()
+
+        val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+
+        val isLarge = windowSizeClass.isAtLeastBreakpoint(
+            widthDpBreakpoint = WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+            heightDpBreakpoint = WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND
+        )
 
         NavHost(navController = navController, startDestination = Landing) {
 
@@ -61,7 +70,7 @@ fun App() {
                         }
                     },
                     navigateLogin = {
-                        navController.navigate(Login) {
+                        navController.navigate(BaseSignupLogin) {
                             popUpTo(0) { inclusive = true }
                         }
                     },
@@ -70,64 +79,22 @@ fun App() {
                 )
             }
 
-            composable<Login> {
-                val loginViewModel = koinViewModel<LoginScreenViewModel>(viewModelStoreOwner = it)
+            composable<BaseSignupLogin> {
 
-
-                LaunchedEffect(loginViewModel.loginSuccess.value) {
-                    if (loginViewModel.loginSuccess.value) {
+                BaseSignupLoginScreen(
+                    onLoginSuccess = {
                         navController.navigate(Home) {
                             popUpTo(0) { inclusive = true }
                         }
-                    }
-                }
-
-                LoginScreen(
-                    email = loginViewModel.email.value,
-                    password = loginViewModel.password.value,
-                    loading = loginViewModel.loading.value,
-                    errorMessage = loginViewModel.errorMessage.value,
-                    onEmailChange = { loginViewModel.setEmail(it) },
-                    onPasswordChange = { loginViewModel.setPassword(it) },
-                    onSignInClick = { loginViewModel.login() },
-                    onSignUpClick = {
-                        navController.navigate(Signup)
-                    }
-                )
-            }
-
-
-            composable<Signup> {
-                val viewModel = koinViewModel<SignUpScreenViewModel>(viewModelStoreOwner = it)
-
-                LaunchedEffect(viewModel.signupSuccess.value) {
-                    if (viewModel.signupSuccess.value) {
+                    },
+                    onSignupSuccess = {
                         navController.navigate(Home) {
                             popUpTo(0) { inclusive = true }
                         }
-                    }
-                }
-
-                SignUpScreen(
-                    name = viewModel.name.value,
-                    username = viewModel.username.value,
-                    email = viewModel.email.value,
-                    password = viewModel.password.value,
-                    usernameAvailable = viewModel.usernameAvailable.value,
-                    emailAvailable = viewModel.emailAvailable.value,
-                    loading = viewModel.loading.value,
-                    errorMessage = viewModel.errorMessage.value,
-                    onNameChange = { viewModel.setName(it) },
-                    onUsernameChange = { viewModel.setUsername(it) },
-                    onEmailChange = { viewModel.setEmail(it) },
-                    onPasswordChange = { viewModel.setPassword(it) },
-                    onSignUpClick = { viewModel.signUp() },
-                    onBackToLoginClick = {
-                        navController.navigate(Login) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
+                    },
+                    isLarge = isLarge
                 )
+
             }
 
             composable<Home> {
@@ -139,7 +106,7 @@ fun App() {
                 HomeScreen(
                     onLogout = {
                         homeScreenViewModel.logout()
-                        navController.navigate(Login) {
+                        navController.navigate(BaseSignupLogin) {
                             popUpTo(0) { inclusive = true }
                         }
                     },
@@ -163,7 +130,13 @@ fun App() {
                     },
                     navigateToUserRequests = {
                         navController.navigate(UserRequestsScreen)
-                    }
+                    },
+                    onOrganisationCreated = {
+                        navController.navigate(Home) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    isLarge = isLarge
                 )
             }
 

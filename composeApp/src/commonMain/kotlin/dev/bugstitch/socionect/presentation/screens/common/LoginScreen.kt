@@ -1,12 +1,16 @@
-package dev.bugstitch.socionect.presentation.screens
+package dev.bugstitch.socionect.presentation.screens.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass
+import dev.bugstitch.socionect.presentation.components.Logo
 
 @Composable
 fun LoginScreen(
@@ -17,7 +21,8 @@ fun LoginScreen(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onSignInClick: () -> Unit,
-    onSignUpClick: () -> Unit
+    onSignUpClick: () -> Unit,
+    isLarge: Boolean
 ) {
 
     Scaffold(
@@ -31,12 +36,20 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 TextButton(onClick = onSignUpClick) {
-                    Text("Sign Up")
+                    Text("Sign Up", textDecoration = TextDecoration.Underline)
                 }
             }
         }
     ) { innerPadding ->
-
+        if(!isLarge){
+            Row(modifier = Modifier.fillMaxWidth()
+                .fillMaxHeight(0.35f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Logo(50,50)
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -46,7 +59,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text("Login Screen", style = MaterialTheme.typography.headlineSmall)
+            Text("Login", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(20.dp))
 
             OutlinedTextField(

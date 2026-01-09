@@ -95,6 +95,8 @@ kotlin {
             implementation(libs.material.icons.extended)
             implementation(libs.kotlinx.datetime)
 
+            implementation(libs.adaptive)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

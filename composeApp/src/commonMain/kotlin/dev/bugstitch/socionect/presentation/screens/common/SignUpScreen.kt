@@ -1,4 +1,4 @@
-package dev.bugstitch.socionect.presentation.screens
+package dev.bugstitch.socionect.presentation.screens.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import dev.bugstitch.socionect.presentation.components.Logo
 
 @Composable
 fun SignUpScreen(
@@ -26,7 +28,8 @@ fun SignUpScreen(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onSignUpClick: () -> Unit,
-    onBackToLoginClick: () -> Unit
+    onBackToLoginClick: () -> Unit,
+    isLarge: Boolean
 ) {
     Scaffold(
         bottomBar = {
@@ -39,11 +42,22 @@ fun SignUpScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 TextButton(onClick = onBackToLoginClick) {
-                    Text("Back to Login")
+                    Text("Back to Login", textDecoration = TextDecoration.Underline)
                 }
             }
         }
     ) { innerPadding ->
+
+        if(!isLarge){
+            Row(modifier = Modifier.fillMaxWidth()
+                .fillMaxHeight(0.35f),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Logo(50,50)
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
