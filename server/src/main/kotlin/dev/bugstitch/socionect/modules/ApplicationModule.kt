@@ -30,6 +30,8 @@ fun Application.module() {
     install(CORS)
     {
         anyHost()
+        allowHost("localhost:3000")
+        allowHost("localhost:8080")
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Authorization)
         allowMethod(HttpMethod.Options)

@@ -30,12 +30,11 @@ class OrganisationChatRepositoryImpl(
     private val httpClient: HttpClient
 ) : OrganisationChatRepository {
 
-    private val endpoint =
-        when (platform) {
-            "android" -> EMU_SERVER_WS
-            "web" -> WEB_SERVER_WS
-            else -> SERVER_WS
-        }
+    private val endpoint = when (platform) {
+        "android" -> EMU_SERVER_WS
+        "web" -> WEB_SERVER_WS
+        else -> SERVER_WS
+    }
 
     private var subtopicSocket: DefaultClientWebSocketSession? = null
     private var coalitionSocket: DefaultClientWebSocketSession? = null
@@ -45,14 +44,19 @@ class OrganisationChatRepositoryImpl(
         subtopicId: String,
         token: String
     ): Flow<NetworkResult<Boolean>> = flow {
+
         emit(NetworkResult.Loading())
+
         try {
             subtopicSocket?.close()
 
-            val url = "$endpoint${ChatRoutes.SUBTOPIC_CHAT}$subtopicId"
+            val url = buildUrl(ChatRoutes.SUBTOPIC_CHAT, subtopicId, token)
+
             subtopicSocket = httpClient.webSocketSession {
                 url(url)
-                header("Authorization", "Bearer $token")
+                if (platform != "web") {
+                    header("Authorization", "Bearer $token")
+                }
             }
 
             emit(
@@ -61,8 +65,9 @@ class OrganisationChatRepositoryImpl(
                 else
                     NetworkResult.Error("Subtopic connection failed")
             )
+
         } catch (e: Exception) {
-            emit(NetworkResult.Error(e.message ?: "Unknown error"))
+            emit(NetworkResult.Error(e.message ?: "Subtopic connection error"))
         }
     }
 
@@ -70,14 +75,19 @@ class OrganisationChatRepositoryImpl(
         coalitionId: String,
         token: String
     ): Flow<NetworkResult<Boolean>> = flow {
+
         emit(NetworkResult.Loading())
+
         try {
             coalitionSocket?.close()
 
-            val url = "$endpoint${ChatRoutes.COALITION_CHAT}$coalitionId"
+            val url = buildUrl(ChatRoutes.COALITION_CHAT, coalitionId, token)
+
             coalitionSocket = httpClient.webSocketSession {
                 url(url)
-                header("Authorization", "Bearer $token")
+                if (platform != "web") {
+                    header("Authorization", "Bearer $token")
+                }
             }
 
             emit(
@@ -86,8 +96,9 @@ class OrganisationChatRepositoryImpl(
                 else
                     NetworkResult.Error("Coalition connection failed")
             )
+
         } catch (e: Exception) {
-            emit(NetworkResult.Error(e.message ?: "Unknown error"))
+            emit(NetworkResult.Error(e.message ?: "Coalition connection error"))
         }
     }
 
@@ -96,10 +107,11 @@ class OrganisationChatRepositoryImpl(
         subtopicId: String,
         token: String
     ): Flow<NetworkResult<List<OrganisationSubtopicMessage>>> = flow {
+
         val session = subtopicSocket
             ?: return@flow emit(NetworkResult.Error("Subtopic socket not connected"))
-        try {
 
+        try {
             while (session.isActive) {
                 val dto = session.receiveDeserialized<OrganisationSubtopicMessageDTO>()
                 emit(NetworkResult.Success(listOf(dto.toOrganisationSubtopicMessage())))
@@ -107,8 +119,6 @@ class OrganisationChatRepositoryImpl(
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             emit(NetworkResult.Error(e.message ?: "Subtopic connection lost"))
-        }finally {
-            session.close()
         }
     }
 
@@ -116,10 +126,11 @@ class OrganisationChatRepositoryImpl(
         coalitionId: String,
         token: String
     ): Flow<NetworkResult<List<CoalitionMessage>>> = flow {
+
         val session = coalitionSocket
             ?: return@flow emit(NetworkResult.Error("Coalition socket not connected"))
-        try {
 
+        try {
             while (session.isActive) {
                 val dto = session.receiveDeserialized<CoalitionMessageDTO>()
                 emit(NetworkResult.Success(listOf(dto.toCoalitionMessage())))
@@ -127,8 +138,6 @@ class OrganisationChatRepositoryImpl(
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             emit(NetworkResult.Error(e.message ?: "Coalition connection lost"))
-        }finally {
-            session.close()
         }
     }
 
@@ -138,11 +147,9 @@ class OrganisationChatRepositoryImpl(
         subtopicId: String,
         token: String
     ): Flow<NetworkResult<Boolean>> = flow {
+
         val session = subtopicSocket
-        if (session == null || !session.isActive) {
-            emit(NetworkResult.Error("Subtopic socket not connected"))
-            return@flow
-        }
+            ?: return@flow emit(NetworkResult.Error("Subtopic socket not connected"))
 
         try {
             session.sendSerialized(
@@ -162,11 +169,9 @@ class OrganisationChatRepositoryImpl(
         coalitionId: String,
         token: String
     ): Flow<NetworkResult<Boolean>> = flow {
+
         val session = coalitionSocket
-        if (session == null || !session.isActive) {
-            emit(NetworkResult.Error("Coalition socket not connected"))
-            return@flow
-        }
+            ?: return@flow emit(NetworkResult.Error("Coalition socket not connected"))
 
         try {
             session.sendSerialized(
@@ -188,4 +193,15 @@ class OrganisationChatRepositoryImpl(
         subtopicSocket = null
         coalitionSocket = null
     }
+
+
+    private fun buildUrl(
+        base: String,
+        id: String,
+        token: String
+    ): String =
+        if (platform == "web")
+            "$endpoint$base$id?token=$token"
+        else
+            "$endpoint$base$id"
 }

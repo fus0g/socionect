@@ -1,37 +1,38 @@
 package dev.bugstitch.socionect.modules
 
 import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.*
 
-fun Application.authenticationModule(){
+object JwtConfig {
 
-    val secret = "secret"
-    val issuer = "http://0.0.0.0:8080/"
-    val audience = "http://0.0.0.0:8080/"
-    val jwtRealm = "hello"
+    private const val secret = "secret"
+    private const val issuer = "http://0.0.0.0:8080/"
+    private const val audience = "http://0.0.0.0:8080/"
 
-    install(Authentication){
+    val verifier: JWTVerifier =
+        JWT
+            .require(Algorithm.HMAC256(secret))
+            .withAudience(audience)
+            .withIssuer(issuer)
+            .build()
+}
+
+fun Application.authenticationModule() {
+
+    install(Authentication) {
         jwt("auth-jwt-user") {
-            realm = jwtRealm
-            verifier {
-                JWT
-                    .require(Algorithm.HMAC256(secret))
-                    .withAudience(audience)
-                    .withIssuer(issuer)
-                    .build()
-            }
+            realm = "socionect"
+            verifier(JwtConfig.verifier)
 
-            validate { cred->
-                if(cred.payload.audience.contains(audience))
-                {
-                    JWTPrincipal(cred.payload)
-                }else{
-                    null
-                }
+            validate { credential ->
+                if (credential.payload.audience.contains("http://0.0.0.0:8080/")) {
+                    JWTPrincipal(credential.payload)
+                } else null
             }
         }
     }
