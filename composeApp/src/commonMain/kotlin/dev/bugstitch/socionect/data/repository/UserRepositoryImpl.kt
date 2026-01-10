@@ -10,7 +10,6 @@ import dev.bugstitch.socionect.data.models.toUser
 import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
-import dev.bugstitch.socionect.utils.CustomLog
 import dev.bugstitch.socionect.utils.GlobalUser
 import dev.bugstitch.socionect.utils.NetworkResult
 import dev.bugstitch.socionect.utils.platform
@@ -19,7 +18,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
-import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders

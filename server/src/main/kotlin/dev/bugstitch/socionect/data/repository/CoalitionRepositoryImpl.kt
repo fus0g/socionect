@@ -1,14 +1,11 @@
 package dev.bugstitch.socionect.data.repository
 
-import dev.bugstitch.socionect.data.database.tables.CoalitionRequests
-import dev.bugstitch.socionect.data.database.tables.Users
 import dev.bugstitch.socionect.domain.database.repository.CoalitionDao
 import dev.bugstitch.socionect.domain.database.repository.OrganisationDao
 import dev.bugstitch.socionect.domain.models.Coalition
 import dev.bugstitch.socionect.domain.models.CoalitionOrganisation
 import dev.bugstitch.socionect.domain.models.CoalitionRequest
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.domain.repository.CoalitionRepository
 
 class CoalitionRepositoryImpl(

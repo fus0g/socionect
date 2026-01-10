@@ -7,7 +7,6 @@ import dev.bugstitch.socionect.domain.database.repository.OrganisationSubtopicDa
 import dev.bugstitch.socionect.domain.models.CoalitionMessage
 import dev.bugstitch.socionect.domain.models.OrganisationSubtopicMessage
 import dev.bugstitch.socionect.domain.repository.OrganisationChatRepository
-import io.ktor.util.logging.Logger
 
 class OrganisationChatRepositoryImpl(
     private val organisationChatDao: OrganisationChatDao,

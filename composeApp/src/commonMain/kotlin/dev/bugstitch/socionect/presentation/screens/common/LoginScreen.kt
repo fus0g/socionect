@@ -2,14 +2,13 @@ package dev.bugstitch.socionect.presentation.screens.common
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass
 import dev.bugstitch.socionect.presentation.components.Logo
 
 @Composable
@@ -24,6 +23,13 @@ fun LoginScreen(
     onSignUpClick: () -> Unit,
     isLarge: Boolean
 ) {
+
+    val emailRegex = remember {
+        Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+    }
+
+    val isEmailValid = email.isNotBlank() && emailRegex.matches(email)
+    val showEmailError = email.isNotEmpty() && !emailRegex.matches(email)
 
     Scaffold(
         bottomBar = {
@@ -41,15 +47,19 @@ fun LoginScreen(
             }
         }
     ) { innerPadding ->
-        if(!isLarge){
-            Row(modifier = Modifier.fillMaxWidth()
-                .fillMaxHeight(0.35f),
+
+        if (!isLarge) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.35f),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Logo(50,50)
+                Logo(modifier = Modifier.size(100.dp),30)
             }
         }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,10 +76,22 @@ fun LoginScreen(
                 value = email,
                 onValueChange = onEmailChange,
                 label = { Text("Email") },
-                placeholder = { Text("xyz@123") },
+                placeholder = { Text("xyz@123.com") },
                 singleLine = true,
+                isError = showEmailError,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            if (showEmailError) {
+                Text(
+                    text = "Please enter a valid email address",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -96,11 +118,11 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                    if (isEmailValid && password.isNotEmpty()) {
                         onSignInClick()
                     }
                 },
-                enabled = !loading,
+                enabled = !loading && isEmailValid && password.isNotEmpty(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)

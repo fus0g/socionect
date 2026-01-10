@@ -8,8 +8,6 @@ import dev.bugstitch.socionect.data.repository.PreferenceStore
 import dev.bugstitch.socionect.domain.models.OrganisationSubtopic
 import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
 import dev.bugstitch.socionect.utils.NetworkResult
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class CreateOrganisationSubtopicScreenViewModel(

@@ -1,6 +1,5 @@
 package dev.bugstitch.socionect.domain.database.repository
 
-import dev.bugstitch.socionect.domain.models.ChatInfo
 import dev.bugstitch.socionect.domain.models.CoalitionMessage
 import dev.bugstitch.socionect.domain.models.OrganisationSubtopicMessage
 

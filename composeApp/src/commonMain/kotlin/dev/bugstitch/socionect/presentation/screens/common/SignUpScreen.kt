@@ -31,6 +31,11 @@ fun SignUpScreen(
     onBackToLoginClick: () -> Unit,
     isLarge: Boolean
 ) {
+
+    val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+    val isEmailFormatValid = email.isNotBlank() && emailRegex.matches(email)
+    val showEmailFormatError = email.isNotEmpty() && !emailRegex.matches(email)
+
     Scaffold(
         bottomBar = {
             Row(
@@ -48,13 +53,15 @@ fun SignUpScreen(
         }
     ) { innerPadding ->
 
-        if(!isLarge){
-            Row(modifier = Modifier.fillMaxWidth()
-                .fillMaxHeight(0.35f),
+        if (!isLarge) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.35f),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Logo(50,50)
+                Logo(modifier = Modifier.size(100.dp),30)
             }
         }
 
@@ -70,6 +77,7 @@ fun SignUpScreen(
             Text("Create Account", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(20.dp))
 
+
             OutlinedTextField(
                 value = name,
                 onValueChange = onNameChange,
@@ -79,6 +87,7 @@ fun SignUpScreen(
             )
 
             Spacer(modifier = Modifier.height(12.dp))
+
 
             OutlinedTextField(
                 value = username,
@@ -109,8 +118,7 @@ fun SignUpScreen(
                             )
                         }
                     }
-                }
-                ,
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -125,11 +133,13 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+
             OutlinedTextField(
                 value = email,
                 onValueChange = onEmailChange,
                 label = { Text("Email") },
                 singleLine = true,
+                isError = showEmailFormatError || emailAvailable == false,
                 trailingIcon = {
                     when {
                         email.isBlank() -> {
@@ -137,6 +147,13 @@ fun SignUpScreen(
                                 Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                        showEmailFormatError -> {
+                            Icon(
+                                Icons.Default.Error,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                         emailAvailable == true -> {
@@ -154,21 +171,31 @@ fun SignUpScreen(
                             )
                         }
                     }
-                }
-                ,
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            if (emailAvailable == false && email.isNotBlank()) {
-                Text(
-                    text = "Email already registered",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.align(Alignment.Start)
-                )
+            when {
+                showEmailFormatError -> {
+                    Text(
+                        text = "Please enter a valid email address",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                }
+                emailAvailable == false && email.isNotBlank() -> {
+                    Text(
+                        text = "Email already registered",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
+
 
             OutlinedTextField(
                 value = password,
@@ -190,12 +217,14 @@ fun SignUpScreen(
                 )
             }
 
-            val allValid = name.isNotEmpty() &&
-                    username.isNotEmpty() &&
-                    email.isNotEmpty() &&
-                    password.isNotEmpty() &&
-                    usernameAvailable == true &&
-                    emailAvailable == true
+            val allValid =
+                name.isNotEmpty() &&
+                        username.isNotEmpty() &&
+                        email.isNotEmpty() &&
+                        password.isNotEmpty() &&
+                        isEmailFormatValid &&
+                        usernameAvailable == true &&
+                        emailAvailable == true
 
             Button(
                 onClick = onSignUpClick,

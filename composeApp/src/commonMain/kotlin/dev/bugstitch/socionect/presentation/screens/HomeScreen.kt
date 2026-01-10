@@ -10,20 +10,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.bugstitch.socionect.domain.models.Organisation
 import dev.bugstitch.socionect.presentation.components.NavigationBar
+import dev.bugstitch.socionect.presentation.components.icons.SocionectLogo
 import dev.bugstitch.socionect.presentation.navigation.CoalitionChatRoom
 import dev.bugstitch.socionect.presentation.navigation.CoalitionRequestScreen
 import dev.bugstitch.socionect.presentation.navigation.CreateCoalition
 import dev.bugstitch.socionect.presentation.navigation.CreateOrganisationSubtopic
 import dev.bugstitch.socionect.presentation.navigation.EmptyObj
 import dev.bugstitch.socionect.presentation.navigation.FindAndSendRequestToUser
-import dev.bugstitch.socionect.presentation.navigation.Home
 import dev.bugstitch.socionect.presentation.navigation.OrganisationListScreen
 import dev.bugstitch.socionect.presentation.navigation.OrganisationMainScreen
 import dev.bugstitch.socionect.presentation.navigation.OrganisationReceivedRequests
@@ -53,7 +52,6 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.Organisation
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationSubtopicChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
-import io.ktor.client.request.invoke
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -79,7 +77,13 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Home") })
+            TopAppBar(title = {
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    SocionectLogo(modifier = Modifier.size(64.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Socionect")
+                }
+            })
         },
         bottomBar = {
             if(!isLarge){

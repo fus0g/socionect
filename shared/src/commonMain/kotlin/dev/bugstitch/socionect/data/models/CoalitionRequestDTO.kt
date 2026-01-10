@@ -1,6 +1,5 @@
 package dev.bugstitch.socionect.data.models
 
-import dev.bugstitch.socionect.domain.models.Coalition
 import dev.bugstitch.socionect.domain.models.CoalitionRequest
 import kotlinx.serialization.Serializable
 

@@ -1,8 +1,6 @@
 package dev.bugstitch.socionect.domain.repository
 
 import dev.bugstitch.socionect.domain.models.Organisation
-import dev.bugstitch.socionect.domain.models.OrganisationMember
-import dev.bugstitch.socionect.domain.models.RequestSendByUser
 import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.utils.NetworkResult
 import kotlinx.coroutines.flow.Flow

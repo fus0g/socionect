@@ -1,6 +1,5 @@
 package dev.bugstitch.socionect.presentation.navigation
 
-import dev.bugstitch.socionect.data.models.OrganisationDTO
 import kotlinx.serialization.Serializable
 
 @Serializable

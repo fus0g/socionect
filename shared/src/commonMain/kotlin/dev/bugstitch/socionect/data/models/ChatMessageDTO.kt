@@ -1,6 +1,5 @@
 package dev.bugstitch.socionect.data.models
 
-import dev.bugstitch.socionect.domain.models.ChatInfo
 import dev.bugstitch.socionect.domain.models.ChatMessage
 import kotlinx.serialization.Serializable
 

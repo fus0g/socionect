@@ -1,14 +1,11 @@
 package dev.bugstitch.socionect.data.database.repository
 
-import dev.bugstitch.socionect.data.database.tables.CoalitionMessages.coalitionId
 import dev.bugstitch.socionect.data.database.tables.CoalitionOrganisations
 import dev.bugstitch.socionect.data.database.tables.CoalitionRequests
 import dev.bugstitch.socionect.data.database.tables.Coalitions
 import dev.bugstitch.socionect.data.database.tables.Coalitions.createdAt
 import dev.bugstitch.socionect.data.database.tables.Coalitions.description
 import dev.bugstitch.socionect.data.database.tables.Coalitions.name
-import dev.bugstitch.socionect.data.database.tables.OrganisationJoinRequestByOrganisation.organisationId
-import dev.bugstitch.socionect.data.database.tables.OrganisationMembers.joinedAt
 import dev.bugstitch.socionect.data.database.tables.Organisations
 import dev.bugstitch.socionect.domain.database.repository.CoalitionDao
 import dev.bugstitch.socionect.domain.models.Coalition
@@ -20,7 +17,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 

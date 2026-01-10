@@ -7,7 +7,6 @@ import dev.bugstitch.socionect.data.models.ChatMessageDTO
 import dev.bugstitch.socionect.data.models.toChatMessage
 import dev.bugstitch.socionect.domain.models.ChatMessage
 import dev.bugstitch.socionect.domain.repository.OneToOneChatRepository
-import dev.bugstitch.socionect.utils.CustomLog
 import dev.bugstitch.socionect.utils.NetworkResult
 import dev.bugstitch.socionect.utils.platform
 import io.ktor.client.*

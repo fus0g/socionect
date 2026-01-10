@@ -72,7 +72,8 @@ fun CreateOrganisationScreen(
                 onValueChange = onOrganisationNameChange,
                 label = { Text("Organisation name") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
             )
 
             OutlinedTextField(
@@ -80,6 +81,7 @@ fun CreateOrganisationScreen(
                 onValueChange = onOrganisationDescriptionChange,
                 label = { Text("Description") },
                 modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
                 minLines = 3
             )
 
