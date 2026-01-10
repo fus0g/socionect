@@ -104,7 +104,10 @@ fun CreateCoalitionScreen(
                     )
                 }
 
-                items(selectedOrganisations, key = { it.id }) { org ->
+                items(
+                    selectedOrganisations,
+                    key = { "cl-selected-${it.id}" }
+                ) { org ->
                     SimpleOrganisationRow(
                         organisation = org,
                         actionText = "Added",
@@ -112,6 +115,7 @@ fun CreateCoalitionScreen(
                         onAction = {}
                     )
                 }
+
             }
 
             // ───── Search & add organisations ─────
@@ -134,11 +138,14 @@ fun CreateCoalitionScreen(
                 )
             }
 
-            items(organisations, key = { it.id }) { org ->
+            items(
+                organisations,
+                key = { "cl-search-${it.id}" }
+            ) { org ->
                 SimpleOrganisationRow(
                     organisation = org,
-                    actionText = if (selectedOrganisations.contains(org)) "Added" else "Add",
-                    enabled = !selectedOrganisations.contains(org),
+                    actionText = if (selectedOrganisations.any { it.id == org.id }) "Added" else "Add",
+                    enabled = !selectedOrganisations.any { it.id == org.id },
                     onAction = { onOrganisationSelected(org) }
                 )
             }

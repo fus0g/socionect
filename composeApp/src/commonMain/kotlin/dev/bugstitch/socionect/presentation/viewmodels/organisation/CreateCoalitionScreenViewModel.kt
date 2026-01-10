@@ -1,6 +1,7 @@
 package dev.bugstitch.socionect.presentation.viewmodels.organisation
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,8 +34,8 @@ class CreateCoalitionScreenViewModel(
     private val _query = mutableStateOf("")
     val query: MutableState<String> = _query
 
-    private val _addedOrganisations = mutableListOf<Organisation>()
-    val addedOrganisations: MutableList<Organisation> = _addedOrganisations
+    private val _addedOrganisations = mutableStateListOf<Organisation>()
+    val addedOrganisations: List<Organisation> = _addedOrganisations
 
     private val _results = MutableStateFlow<List<Organisation>>(emptyList())
     val results: StateFlow<List<Organisation>> = _results
@@ -86,10 +87,13 @@ class CreateCoalitionScreenViewModel(
 
     }
 
-    fun addOrganisation(organisation: Organisation){
-        _addedOrganisations.add(organisation)
+    fun addOrganisation(organisation: Organisation) {
+        if (_addedOrganisations.none { it.id == organisation.id }) {
+            _addedOrganisations.add(organisation)
+        }
         setQuery(_query.value)
     }
+
 
     fun createCoalition(hostOrgId: String){
         if(token != null)

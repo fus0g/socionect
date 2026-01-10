@@ -50,7 +50,7 @@ fun OrganisationReceivedRequestScreen(
                 )
             }
 
-            items(list, key = { it.id }) { user ->
+            items(list, key = { "orrs-${it.id}" }) { user ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

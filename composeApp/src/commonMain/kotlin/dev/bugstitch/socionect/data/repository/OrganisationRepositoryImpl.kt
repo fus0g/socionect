@@ -198,7 +198,8 @@ class OrganisationRepositoryImpl(
                     contentType(ContentType.Application.Json)
                     header("Authorization", "Bearer $token")
                     setBody(RequestSendByOrganisationDTO(
-                        organisationId = organisationId)
+                        organisationId = organisationId
+                    )
                     )
                 }
                 if(request.status == HttpStatusCode.OK)

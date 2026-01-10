@@ -35,57 +35,83 @@ class OrganisationMainScreenViewModel(
 
 
 
-    fun fetchSubtopics(organisationId: String){
-        if(token.value != null){
-            viewModelScope.launch {
-                _state.value = _state.value.copy(loading = true)
-                organisationSubtopicRepository.getAllOrganisationSubTopic(organisationId,token.value!!).collect {
-                    when (it) {
+    fun fetchSubtopics(organisationId: String) {
+        val jwt = token.value ?: return
+
+        viewModelScope.launch {
+            _state.value = _state.value.copy(loading = true)
+
+            organisationSubtopicRepository
+                .getAllOrganisationSubTopic(organisationId, jwt)
+                .collect { result ->
+                    when (result) {
                         is NetworkResult.Success -> {
+                            val uniqueSubtopics = result.data
+                                .distinctBy { it.id }
+
                             _state.value = _state.value.copy(
-                                subtopics = it.data,
+                                subtopics = uniqueSubtopics,
                                 loading = false,
                                 error = null
                             )
                         }
+
                         is NetworkResult.Error -> {
                             _state.value = _state.value.copy(
                                 loading = false,
-                                error = it.message
+                                error = result.message
                             )
                         }
-                        is NetworkResult.Loading -> {}
+
+                        else -> {}
                     }
                 }
-            }
         }
     }
 
-    fun fetchCoalitions(organisationId: String){
-        if(token.value != null){
-            viewModelScope.launch {
-                _state.value = _state.value.copy(loading = true)
-                coalitionRepository.getAllCoalitions(token.value!!, Organisation(
-                    id = organisationId,
-                    name = "",
-                    description = "",
-                    createdAt = 0)).collect{
-                        when (it) {
-                            is NetworkResult.Success -> {
-                                _state.value = _state.value.copy(
-                                    coalitions = it.data,
-                                    loading = false,
-                                    error = null
-                                )
-                            }
 
-                            else -> {}
+    fun fetchCoalitions(organisationId: String) {
+        val jwt = token.value ?: return
+
+        viewModelScope.launch {
+            _state.value = _state.value.copy(loading = true)
+
+            coalitionRepository
+                .getAllCoalitions(
+                    jwt,
+                    Organisation(
+                        id = organisationId,
+                        name = "",
+                        description = "",
+                        createdAt = 0
+                    )
+                )
+                .collect { result ->
+                    when (result) {
+                        is NetworkResult.Success -> {
+                            val uniqueCoalitions = result.data
+                                .distinctBy { it.id }
+
+                            _state.value = _state.value.copy(
+                                coalitions = uniqueCoalitions,
+                                loading = false,
+                                error = null
+                            )
                         }
-                }
 
-            }
+                        is NetworkResult.Error -> {
+                            _state.value = _state.value.copy(
+                                loading = false,
+                                error = result.message
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }
         }
     }
+
 
     data class OrganisationMainScreenState(
         val subtopics: List<OrganisationSubtopic> = emptyList(),

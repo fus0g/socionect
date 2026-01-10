@@ -12,6 +12,7 @@ import dev.bugstitch.socionect.utils.NetworkResult
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -19,109 +20,137 @@ class FindAndSendRequestToUserScreenViewModel(
     private val userRepository: UserRepository,
     private val organisationRepository: OrganisationRepository,
     private val settingsRepository: PreferenceStore
-): ViewModel() {
+) : ViewModel() {
 
-    private val token = settingsRepository.getPreference("access_token")
+    private val token: String? =
+        settingsRepository.getPreference("access_token")
 
-    private val _state = MutableStateFlow(FindAndSendRequestToUserScreenState())
-    val state: MutableStateFlow<FindAndSendRequestToUserScreenState> = _state
+    private val _state =
+        MutableStateFlow(FindAndSendRequestToUserState())
+    val state: StateFlow<FindAndSendRequestToUserState> = _state
 
     private val _query = mutableStateOf("")
     val query: MutableState<String> = _query
 
     private val _loading = MutableStateFlow(false)
-    val loading: MutableStateFlow<Boolean> = _loading
+    val loading: StateFlow<Boolean> = _loading
 
     private val _error = MutableStateFlow<String?>(null)
-    val error: MutableStateFlow<String?> = _error
+    val error: StateFlow<String?> = _error
 
     private var searchJob: Job? = null
+
+    private fun List<User>.dedupe(): List<User> =
+        distinctBy { it.id }
 
     fun setQuery(value: String) {
         _query.value = value
         searchJob?.cancel()
+
+        if (value.isBlank()) {
+            _state.update {
+                it.copy(searchedUsers = emptyList())
+            }
+            return
+        }
+
         searchJob = viewModelScope.launch {
             _loading.value = true
             delay(400)
-            if (_query.value.isBlank()) {
-                return@launch
-            }
             searchUsers()
         }
     }
 
-    private suspend fun searchUsers(){
-        if(token == null) return
-        if(_query.value.isBlank()) return
-        userRepository.searchUsers(token, _query.value).collect{
-            when(it){
-                is NetworkResult.Success ->{
-                    _loading.value = false
+    private suspend fun searchUsers() {
+        if (token == null || _query.value.isBlank()) return
 
+        userRepository.searchUsers(token, _query.value).collect {
+            when (it) {
+                is NetworkResult.Success -> {
+                    _loading.value = false
                     _state.update { state ->
                         state.copy(
-                            searchedUsers = it.data
+                            searchedUsers = it.data.dedupe()
                         )
                     }
                 }
+
+                is NetworkResult.Error -> {
+                    _loading.value = false
+                    _error.value = it.message
+                }
+
                 else -> {}
             }
         }
     }
 
-    suspend fun getMemberUsers(organisationId: String){
-        if(token == null) return
-        organisationRepository.getAllMembers(organisationId,token).collect {
-            when(it){
-                is NetworkResult.Success ->{
+    suspend fun getMemberUsers(organisationId: String) {
+        if (token == null) return
+
+        organisationRepository
+            .getAllMembers(organisationId, token)
+            .collect {
+                if (it is NetworkResult.Success) {
                     _state.update { state ->
                         state.copy(
-                            memberUsers = it.data
+                            memberUsers = it.data.dedupe()
                         )
                     }
                 }
-                else -> {}
             }
-        }
     }
 
     suspend fun getRequestedUsers(organisationId: String) {
         if (token == null) return
-        organisationRepository.getRequestsSendToUser(organisationId,token).collect {
-            when (it) {
-                is NetworkResult.Success -> {
+
+        organisationRepository
+            .getRequestsSendToUser(organisationId, token)
+            .collect {
+                if (it is NetworkResult.Success) {
                     _state.update { state ->
                         state.copy(
-                            requestedUsers = it.data
+                            requestedUsers = it.data.dedupe()
                         )
                     }
                 }
-                else -> {}
             }
-        }
     }
 
-    fun sendRequestToUser(userId: String,organisationId: String) {
+    fun sendRequestToUser(
+        userId: String,
+        organisationId: String
+    ) {
         if (token == null) return
+
+        _state.update { state ->
+            val user = state.searchedUsers
+                .firstOrNull { it.id == userId }
+
+            if (user == null) state
+            else state.copy(
+                requestedUsers = (state.requestedUsers + user).dedupe()
+            )
+        }
+
         viewModelScope.launch {
-            organisationRepository.sendRequestToUser(userId,organisationId,token).collect {
-                when (it) {
-                    is NetworkResult.Success -> {
-                        getRequestedUsers(organisationId)
-                        getMemberUsers(organisationId)
-                        searchUsers()
+            organisationRepository
+                .sendRequestToUser(userId, organisationId, token)
+                .collect {
+                    when (it) {
+                        is NetworkResult.Success -> {
+                            getRequestedUsers(organisationId)
+                            getMemberUsers(organisationId)
+                        }
+                        else -> {}
                     }
-                    else -> {}
                 }
-            }
         }
     }
 
-
-    data class FindAndSendRequestToUserScreenState(
+    data class FindAndSendRequestToUserState(
         val searchedUsers: List<User> = emptyList(),
         val requestedUsers: List<User> = emptyList(),
         val memberUsers: List<User> = emptyList()
     )
-
 }

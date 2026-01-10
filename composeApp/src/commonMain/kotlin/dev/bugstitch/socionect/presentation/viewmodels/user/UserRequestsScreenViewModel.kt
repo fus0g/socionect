@@ -60,7 +60,6 @@ class UserRequestsScreenViewModel(
 
     fun confirmRequest(organisation: Organisation){
         if(token == null) return
-
         viewModelScope.launch {
             organisationRepository.userAcceptsRequest(organisation.id,token).collect {
                 when(it)
@@ -77,7 +76,6 @@ class UserRequestsScreenViewModel(
 
     fun declineRequest(organisation: Organisation){
         if(token == null) return
-
         viewModelScope.launch {
             organisationRepository.userDeclinesRequest(organisation.id,token).collect {
                 when(it)

@@ -95,9 +95,6 @@ fun App() {
 
             composable<Home> {
                 val homeScreenViewModel = koinViewModel<HomeScreenViewModel>(viewModelStoreOwner = it)
-                val organisationListScreenViewModel = koinViewModel<OrganisationListScreenViewModel>(viewModelStoreOwner = it)
-
-                val orgListData = organisationListScreenViewModel.organisations.collectAsState()
 
                 HomeScreen(
                     onLogout = {
@@ -106,7 +103,6 @@ fun App() {
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    organisationList = orgListData.value.organisations,
                     onOrganisationItemClick = { org ->
                         navController.navigate(OrganisationMainScreen(
                             orgId = org.id,
@@ -370,9 +366,10 @@ fun App() {
                     description = args.orgDescription,
                     createdAt = args.orgCreatedAt
                 )
-                LaunchedEffect(Unit){
-                    vm.getRequests(org)
+                LaunchedEffect(org.id) {
+                    vm.loadRequests(org)
                 }
+
                 val list = vm.list.collectAsState()
                 CoalitionRequestsScreen(
                     list = list.value,

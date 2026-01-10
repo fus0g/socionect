@@ -47,7 +47,7 @@ fun UserScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 shape = RoundedCornerShape(24.dp)
             )
-            .padding(top = 2.dp, start=16.dp,end=16.dp,bottom = 8.dp)
+            .padding(top = 16.dp, start=16.dp,end=16.dp,bottom = 16.dp)
     } else {
         Modifier
             .fillMaxSize()

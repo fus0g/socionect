@@ -49,7 +49,7 @@ fun CoalitionRequestsScreen(
                 )
             }
 
-            items(list, key = { it.id }) { request ->
+            items(list, key = { "cr-${it.id}" }) { request ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

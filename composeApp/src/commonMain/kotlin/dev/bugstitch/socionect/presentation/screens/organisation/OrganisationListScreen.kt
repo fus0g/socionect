@@ -40,7 +40,7 @@ fun OrganisationListScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 shape = RoundedCornerShape(24.dp)
             )
-            .padding(top = 2.dp, start=16.dp,end=16.dp,bottom = 8.dp)
+            .padding(top = 16.dp, start=16.dp,end=16.dp,bottom = 16.dp)
     } else {
         Modifier
             .fillMaxSize()
@@ -61,7 +61,7 @@ fun OrganisationListScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn {
-            items(filteredList, key = { it.id }) { organisation ->
+            items(filteredList, key = { "orgList-${it.id}" }) { organisation ->
                 OrganisationItem(
                     organisation,
                     onItemClick = { onItemClick(organisation) }

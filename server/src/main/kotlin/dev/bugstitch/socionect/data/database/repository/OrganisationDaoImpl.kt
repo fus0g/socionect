@@ -271,7 +271,7 @@ class OrganisationDaoImpl(private val database: Database) : OrganisationDao {
                     OrganisationJoinRequestByOrganisation.userId eq userId
                 }.map {
                     Organisation(
-                        id = it[OrganisationJoinRequestByOrganisation.id],
+                        id = it[OrganisationJoinRequestByOrganisation.organisationId],
                         name = it[Organisations.name],
                         description = it[Organisations.description],
                         createdAt = it[Organisations.createdAt]

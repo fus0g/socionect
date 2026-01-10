@@ -43,7 +43,7 @@ fun OrganisationCoalitionChatScreen(
         topBar = {
             ChatTopBar(
                 title = chatTitle,
-                showBack = true,
+                showBack = !isLarge,
                 onBack = onBack
             )
         },
@@ -79,7 +79,7 @@ fun OrganisationCoalitionChatScreen(
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                items(messages, key = { it.id }) { msg ->
+                items(messages, key = { "msg-${it.id}" }) { msg ->
                     ChatMessageBubble(
                         senderId = msg.senderId,
                         senderName = msg.senderName,

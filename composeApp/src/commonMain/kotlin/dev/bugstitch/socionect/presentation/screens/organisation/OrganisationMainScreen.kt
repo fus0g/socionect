@@ -82,7 +82,7 @@ fun OrganisationMainScreen(
 
             item { SectionHeader("Subtopics") }
 
-            items(subtopics, key = { it.id }) { subtopic ->
+            items(subtopics, key = { "subtopic-${it.id}" }) { subtopic ->
                 SimpleSidebarItem(
                     prefix = "#",
                     title = subtopic.name,
@@ -96,7 +96,7 @@ fun OrganisationMainScreen(
                 SectionHeader("Coalitions")
             }
 
-            items(coalitions, key = { it.id }) { coalition ->
+            items(coalitions, key = { "coalition-${it.id}" }) { coalition ->
                 SimpleSidebarItem(
                     prefix = "@",
                     title = coalition.name,

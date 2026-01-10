@@ -48,6 +48,7 @@ import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalit
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationCoalitionChatViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationListScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationSubtopicChatViewModel
@@ -60,7 +61,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun HomeScreen(
     onLogout: () -> Unit,
-    organisationList: List<Organisation>,
     onOrganisationItemClick: (Organisation) -> Unit,
     onOrganisationCreated: () -> Unit,
     isLarge: Boolean,
@@ -117,7 +117,8 @@ fun HomeScreen(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Row(modifier = Modifier.fillMaxSize()){
+            Row(modifier = Modifier.fillMaxSize()
+                .padding(bottom = 10.dp)){
 
                 if(isLarge){
                     NavigationBar(
@@ -162,9 +163,18 @@ fun HomeScreen(
                                 navController = localNavController,
                                 startDestination = OrganisationListScreen
                             ){
-                                composable<OrganisationListScreen>{
+                                composable<OrganisationListScreen>{backStackEntry->
+
+                                    val organisationListScreenViewModel = koinViewModel<OrganisationListScreenViewModel>()
+
+                                    LaunchedEffect(backStackEntry){
+                                        organisationListScreenViewModel.fetchAllOrganisations()
+                                    }
+                                    val orgListData = organisationListScreenViewModel.organisations.collectAsState()
+
+
                                     OrganisationListScreen(
-                                        list = organisationList,
+                                        list = orgListData.value.organisations,
                                         onItemClick = {item->
                                             localNavController.navigate(OrganisationMainScreen(
                                                 orgId = item.id,
@@ -382,7 +392,8 @@ fun HomeScreen(
                                 },
                                 onOrganisationCreate = {
                                     vm.create()
-                                }
+                                },
+                                isLarge = isLarge
                             )
                         }
 
@@ -590,8 +601,8 @@ fun HomeScreen(
                                 description = args.orgDescription,
                                 createdAt = args.orgCreatedAt
                             )
-                            LaunchedEffect(Unit){
-                                vm.getRequests(org)
+                            LaunchedEffect(org.id) {
+                                vm.loadRequests(org)
                             }
                             val list = vm.list.collectAsState()
                             CoalitionRequestsScreen(

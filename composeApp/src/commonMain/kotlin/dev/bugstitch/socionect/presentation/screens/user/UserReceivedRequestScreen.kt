@@ -51,7 +51,7 @@ fun UserReceivedRequestScreen(
                 )
             }
 
-            items(list, key = { it.id }) { org ->
+            items(list, key = { "urrs-{it.id}" }) { org ->
                 OrganisationRequestItem(
                     organisation = org
                 ) {

@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bugstitch.socionect.domain.models.User
+import dev.bugstitch.socionect.presentation.components.BrowseUserItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,50 +89,15 @@ fun FindAndSendRequestToUserScreen(
                 }
             }
 
-            items(results, key = { it.id }) { user ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            user.name,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            "@${user.username}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    when {
-                        memberUsers.any { it.id == user.id } -> {
-                            Text(
-                                "Joined",
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        requestedUsers.any { it.id == user.id } -> {
-                            Text(
-                                "Requested",
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-
-                        else -> {
-                            Button(onClick = { onRequestClick(user) }) {
-                                Text("Request")
-                            }
-                        }
-                    }
-                }
+            items(results, key = { "user-${it.id}" }) { user ->
+                BrowseUserItem(
+                    user = user,
+                    isJoined = memberUsers.any { it.id == user.id },
+                    isRequested = requestedUsers.any { it.id == user.id },
+                    onSendRequest = { onRequestClick(user) }
+                )
             }
+
         }
     }
 }

@@ -46,7 +46,7 @@ fun UserSentRequestScreen(
                 )
             }
 
-            items(list, key = { it.id }) { org ->
+            items(list, key = { "usr-${it.id}" }) { org ->
                 OrganisationRequestItem(
                     organisation = org
                 ) {
