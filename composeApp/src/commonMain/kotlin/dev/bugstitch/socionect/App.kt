@@ -26,7 +26,6 @@ import dev.bugstitch.socionect.presentation.screens.organisation.chat.Organisati
 import dev.bugstitch.socionect.presentation.screens.user.UserRequestsScreen
 import dev.bugstitch.socionect.presentation.theme.CustomColors
 import dev.bugstitch.socionect.presentation.viewmodels.*
-import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionRequestsScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalitionScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
@@ -110,12 +109,6 @@ fun App() {
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    navigateDiscover = {
-                        navController.navigate(Discover)
-                    },
-                    navigateCreateOrg = {
-                        navController.navigate(CreateOrganisation)
-                    },
                     organisationList = orgListData.value.organisations,
                     onOrganisationItemClick = { org ->
                         navController.navigate(OrganisationMainScreen(
@@ -125,9 +118,6 @@ fun App() {
                             orgCreatedAt = org.createdAt
                         ))
                     },
-                    navigateDiscoverOrganisations = {
-                        navController.navigate(DiscoverOrganisations)
-                    },
                     navigateToUserRequests = {
                         navController.navigate(UserRequestsScreen)
                     },
@@ -136,32 +126,8 @@ fun App() {
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    isLarge = isLarge
-                )
-            }
-
-            composable<Discover> {
-                val vm = koinViewModel<UserSearchViewModel>()
-
-                val query by vm.query.collectAsState()
-                val results by vm.results.collectAsState()
-                val loading by vm.loading.collectAsState()
-                val error by vm.error.collectAsState()
-
-                UserSearchScreen(
-                    query = query,
-                    results = results,
-                    loading = loading,
-                    error = error,
-                    onQueryChange = { vm.setQuery(it) },
-                    onUserClick = { user ->
-                        navController.navigate(
-                            ChatRoom(
-                                otherUserId = user.id,
-                                otherUserName = user.username
-                            )
-                        )
-                    }
+                    isLarge = isLarge,
+                    navController = navController
                 )
             }
 
@@ -186,33 +152,6 @@ fun App() {
                     loading = loading,
                     onSend = { text -> vm.sendMessage(text, otherUserId) },
                     onBack = { navController.popBackStack() }
-                )
-            }
-
-            composable<CreateOrganisation> {
-                val vm = koinViewModel<CreateOrganisationScreenViewModel>(viewModelStoreOwner = it)
-
-                LaunchedEffect(vm.created.value){
-                    if(vm.created.value){
-                        navController.navigate(Home) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
-                }
-
-                CreateOrganisationScreen(
-                    organisationName = vm.orgName.value,
-                    organisationDescription = vm.orgDescription.value,
-                    error = vm.error.value,
-                    onOrganisationNameChange = { n->
-                        vm.setOrgName(n)
-                    },
-                    onOrganisationDescriptionChange = { d->
-                        vm.setOrgDescription(d)
-                    },
-                    onOrganisationCreate = {
-                        vm.create()
-                    }
                 )
             }
 
@@ -277,6 +216,10 @@ fun App() {
                             coalitionId = it.id,
                             coalitionName = it.name
                         ))
+                    },
+                    isLarge = isLarge,
+                    onBackClick = {
+
                     }
                 )
             }
@@ -318,25 +261,8 @@ fun App() {
                     },
                     onSubtopicCreate = {
                         vm.createSubtopic(organisation.id)
-                    }
-                )
-
-            }
-
-            composable<DiscoverOrganisations> {
-                val vm = koinViewModel<BrowseOrganisationScreenViewModel>(viewModelStoreOwner = it)
-                val list = vm.results.collectAsState()
-                val state = vm.state.collectAsState()
-
-                BrowseOrganisationScreen(
-                    query = vm.query.value,
-                    results = list.value,
-                    requestedOrg = state.value.usersRequestedOrganisations,
-                    userOrg = state.value.usersCurrentOrganisation,
-                    loading = vm.loading.value,
-                    error = vm.error.value,
-                    onQueryChange = { text -> vm.setQuery(text) },
-                    onSendRequest = { org -> vm.sendRequestToOrganisation(org.id) }
+                    },
+                    isLarge = isLarge
                 )
 
             }
@@ -433,7 +359,8 @@ fun App() {
                     organisations = orgs.value,
                     onOrganisationSelected = {org-> vm.addOrganisation(org) },
                     selectedOrganisations = vm.addedOrganisations,
-                    onCreateClick = { vm.createCoalition(args.orgId) }
+                    onCreateClick = { vm.createCoalition(args.orgId) },
+                    isLarge = isLarge
                 )
             }
 
@@ -481,7 +408,8 @@ fun App() {
                     messages = messages,
                     loading = loading,
                     onSend = { text -> vm.sendMessage(text, subtopicId) },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    isLarge = isLarge
                 )
             }
 
@@ -505,7 +433,8 @@ fun App() {
                     messages = messages,
                     loading = loading,
                     onSend = { text -> vm.sendMessage(text, coalitionId) },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    isLarge = isLarge
                 )
             }
 

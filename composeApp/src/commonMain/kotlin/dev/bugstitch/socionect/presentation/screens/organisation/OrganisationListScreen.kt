@@ -1,39 +1,72 @@
 package dev.bugstitch.socionect.presentation.screens.organisation
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.bugstitch.socionect.domain.models.Organisation
+import dev.bugstitch.socionect.presentation.components.OrganisationItem
+import dev.bugstitch.socionect.presentation.components.CustomSearchBar
 
 @Composable
 fun OrganisationListScreen(
     list: List<Organisation>,
-    onItemClick: (Organisation) -> Unit
-){
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .statusBarsPadding()
-        .navigationBarsPadding()
+    onItemClick: (Organisation) -> Unit,
+    isLarge: Boolean
+) {
+    var query by remember { mutableStateOf("") }
+
+    val filteredList by remember(list, query) {
+        mutableStateOf(
+            if (query.isBlank()) list
+            else list.filter {
+                it.name.contains(query, ignoreCase = true)
+            }
+        )
+    }
+
+    val baseModifier = if (isLarge) {
+        Modifier
+            .widthIn(max = 360.dp)
+            .fillMaxHeight()
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .padding(top = 2.dp, start=16.dp,end=16.dp,bottom = 8.dp)
+    } else {
+        Modifier
+            .fillMaxSize()
+            .padding(top = 2.dp, start=8.dp,end=8.dp,bottom = 8.dp)
+    }
+
+    Column(
+        modifier = baseModifier
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        CustomSearchBar(
+            query = query,
+            onQueryChange = { query = it }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn {
-            list.forEach {
-                item {
-                    Column(modifier = Modifier.clickable(
-                        onClick = {onItemClick(it)}
-                    )) {
-                        Text(it.name)
-                        Text(it.description)
-                    }
-                }
+            items(filteredList, key = { it.id }) { organisation ->
+                OrganisationItem(
+                    organisation,
+                    onItemClick = { onItemClick(organisation) }
+                )
             }
         }
-
     }
 }

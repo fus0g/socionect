@@ -10,13 +10,7 @@ object Home
 object Landing
 
 @Serializable
-object Discover
-
-@Serializable
-object CreateOrganisation
-
-@Serializable
-object DiscoverOrganisations
+object OrganisationListScreen
 
 @Serializable
 data class OrganisationMainScreen(
@@ -83,4 +77,7 @@ data class CoalitionChatRoom(
 
 @Serializable
 object BaseSignupLogin
+
+@Serializable
+object EmptyObj
 

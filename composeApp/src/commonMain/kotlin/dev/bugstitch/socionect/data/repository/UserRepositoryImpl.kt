@@ -11,6 +11,7 @@ import dev.bugstitch.socionect.domain.models.User
 import dev.bugstitch.socionect.domain.models.toUserDTO
 import dev.bugstitch.socionect.domain.repository.UserRepository
 import dev.bugstitch.socionect.utils.CustomLog
+import dev.bugstitch.socionect.utils.GlobalUser
 import dev.bugstitch.socionect.utils.NetworkResult
 import dev.bugstitch.socionect.utils.platform
 import io.ktor.client.HttpClient
@@ -18,6 +19,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
+import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -42,6 +44,7 @@ class UserRepositoryImpl(private val httpClient: HttpClient): UserRepository {
                 if(response.status == HttpStatusCode.OK)
                 {
                     val tokens = response.body<TokenDTO>()
+                    helloUser(tokens.token).collect {  }
                     emit(NetworkResult.Success(tokens))
                 }
                 else
@@ -73,6 +76,7 @@ class UserRepositoryImpl(private val httpClient: HttpClient): UserRepository {
                     if(newRequest.status == HttpStatusCode.OK)
                     {
                         val tokens = newRequest.body<TokenDTO>()
+                        helloUser(tokens.token).collect {  }
                         emit(NetworkResult.Success(tokens))
                     }
                     else
@@ -152,7 +156,11 @@ class UserRepositoryImpl(private val httpClient: HttpClient): UserRepository {
             }
 
             when (response.status) {
-                HttpStatusCode.OK -> emit(NetworkResult.Success(true))
+                HttpStatusCode.OK -> {
+                    val user = response.body<UserDTO>()
+                    GlobalUser.User = user.toUser()
+                    emit(NetworkResult.Success(true))
+                }
                 HttpStatusCode.Unauthorized -> emit(NetworkResult.Error("Unauthorized"))
                 else -> emit(NetworkResult.Error("Unexpected error: ${response.status}"))
             }

@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.bugstitch.socionect.domain.models.ChatMessage
 import dev.bugstitch.socionect.domain.models.OrganisationSubtopicMessage
+import dev.bugstitch.socionect.presentation.components.ChatInputBar
+import dev.bugstitch.socionect.presentation.components.ChatMessageBubble
+import dev.bugstitch.socionect.presentation.components.ChatTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,7 +25,8 @@ fun OrganisationSubtopicChatScreen(
     messages: List<OrganisationSubtopicMessage>,
     loading: Boolean,
     onSend: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    isLarge: Boolean
 ) {
     val listState = rememberLazyListState()
     var text by remember { mutableStateOf("") }
@@ -35,80 +39,58 @@ fun OrganisationSubtopicChatScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(chatTitle) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            ChatTopBar(
+                title = chatTitle,
+                showBack = !isLarge,
+                onBack = onBack
             )
         },
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .imePadding(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Message") },
-                    maxLines = 3
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        if (text.isNotBlank()) {
-                            onSend(text)
-                            text = ""
-                        }
-                    },
-                    enabled = !loading
-                ) { Text("Send") }
-            }
+            ChatInputBar(
+                text = text,
+                onTextChange = { text = it },
+                onSend = {
+                    if (text.isNotBlank()) {
+                        onSend(text.trim())
+                        text = ""
+                    }
+                },
+                enabled = !loading,
+                isLarge = isLarge
+            )
         }
-    ) { inner ->
+    ) { innerPadding ->
 
         Box(
             modifier = Modifier
-                .padding(inner)
                 .fillMaxSize()
+                .padding(innerPadding)
         ) {
+
             if (loading && messages.isEmpty()) {
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
                 state = listState,
-                contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 12.dp,
+                    end = 12.dp,
+                    top = 12.dp,
+                    bottom = 8.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                items(messages) { msg ->
-                    val isMe = msg.senderId == "me" || msg.senderId == "current_user_id_here"
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = if (isMe) Alignment.End else Alignment.Start
-                    ) {
-                        Surface(
-                            shape = MaterialTheme.shapes.medium,
-                            color = if (isMe) MaterialTheme.colorScheme.primaryContainer
-                            else MaterialTheme.colorScheme.secondaryContainer
-                        ) {
-                            Column {
-                                Text(msg.senderName, fontSize = 8.sp)
-                                Text(
-                                    text = msg.message,
-                                    modifier = Modifier.padding(12.dp)
-                                )
-                            }
-                        }
-                    }
+                items(messages, key = { it.id }) { msg ->
+                    ChatMessageBubble(
+                        senderId = msg.senderId,
+                        senderName = msg.senderName,
+                        message = msg.message,
+                        isLarge = isLarge
+                    )
                 }
             }
         }

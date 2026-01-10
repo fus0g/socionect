@@ -3,6 +3,7 @@ package dev.bugstitch.socionect.presentation.theme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import kotlin.math.abs
 
 object CustomColors {
 
@@ -74,4 +75,40 @@ object CustomColors {
         error = Color(0xFFEF5350),
         onError = MidnightBlack
     )
+
+    object PastelColours {
+        val PastelBlue = Color(0xFFAEC6CF)      // Soft pastel blue
+        val PastelYellow = Color(0xFFFFE5A5)    // Soft pastel yellow
+        val PastelPink = Color(0xFFFFD1DC)      // Soft pastel pink
+        val PastelGreen = Color(0xFFB5EAD7)     // Light pastel mint green
+        val PastelLavender = Color(0xFFE6E6FA)  // Light pastel lavender
+        val PastelPeach = Color(0xFFFFDAC1)     // Light pastel peach
+        val PastelMint = Color(0xFFB0EACD)      // Soft pastel mint
+        val PastelLilac = Color(0xFFDBB8E3)     // Light pastel lilac
+        val PastelOrange = Color(0xFFFFCCB6)    // Soft pastel orange
+        val PastelAqua = Color(0xFFA2D8D8)      // Soft pastel aqua
+
+        val colorList = listOf(
+            PastelBlue,
+            PastelPink,
+            PastelGreen,
+            PastelYellow,
+            PastelLavender,
+            PastelPeach,
+            PastelMint,
+            PastelLilac,
+            PastelOrange,
+            PastelAqua
+        )
+
+        fun pastelColorFor(input: String): Color {
+            if (input.isEmpty()) return colorList.first()
+
+            // Stable hash → index
+            val hash = input.hashCode()
+            val index = abs(hash) % colorList.size
+
+            return colorList[index]
+        }
+    }
 }

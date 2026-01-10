@@ -38,7 +38,8 @@ fun NavigationBar(
     if(isLarge){
 
         Column(modifier = Modifier.fillMaxHeight()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .padding(end = 8.dp, start = 8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
 
