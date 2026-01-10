@@ -29,6 +29,7 @@ kotlinxSerialization = "1.9.0"
 coroutines = "1.10.2"
 exposed = "1.0.0-rc-2"
 postgres = "42.7.8"
+sqliteJdbc = "3.50.3.0"
 
 [libraries]
 adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
@@ -66,6 +67,8 @@ koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref =
 bson = { module = "org.mongodb:bson", version.ref = "bson" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }
+
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
 
 #koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

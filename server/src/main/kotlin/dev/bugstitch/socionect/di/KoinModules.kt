@@ -26,16 +26,18 @@ import dev.bugstitch.socionect.domain.repository.OrganisationSubtopicRepository
 import dev.bugstitch.socionect.domain.repository.UserRepository
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.koin.dsl.module
+import java.io.File
 
 val KoinModule = module {
 
     single<Database>{
-        Database.connect(
+        /*Database.connect(
             url = "jdbc:postgresql://localhost:5432/socionect",
             driver = "org.postgresql.Driver",
             user = "user1",
             password = "password"
-        )
+        )*/
+        Database.connect("jdbc:sqlite:${File( "Socionect.db")}", driver = "org.sqlite.JDBC")
     }
 
     single<UserDao>{ UserDaoImpl(get()) }

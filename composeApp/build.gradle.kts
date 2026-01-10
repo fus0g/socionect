@@ -57,6 +57,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.multiplatform.settings)
 
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -108,6 +109,7 @@ kotlin {
             //ktor engine
             implementation(libs.ktor.client.okhttp)
             implementation(libs.multiplatform.settings)
+            implementation(compose.components.resources)
         }
 
         nativeMain.dependencies {
@@ -120,11 +122,13 @@ kotlin {
             //ktor engine
             implementation(libs.ktor.client.js)
             implementation(libs.multiplatform.settings)
+            implementation(compose.components.resources)
         }
         webMain.dependencies {
             //ktor engine
             implementation(libs.ktor.client.js)
             implementation(libs.multiplatform.settings)
+            implementation(compose.components.resources)
         }
         jsMain.dependencies {
             //ktor engine

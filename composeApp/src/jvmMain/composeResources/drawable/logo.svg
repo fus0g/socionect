@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+    width="256"
+    height="256"
+    viewBox="0 0 256 256"
+    xmlns="http://www.w3.org/2000/svg"
+>
+
+    <!-- Connections -->
+    <line x1="128" y1="128" x2="64"  y2="80"
+        stroke="#6C7CFF" stroke-width="12" stroke-linecap="round"/>
+    <line x1="128" y1="128" x2="192" y2="80"
+        stroke="#6C7CFF" stroke-width="12" stroke-linecap="round"/>
+    <line x1="128" y1="128" x2="208" y2="128"
+        stroke="#6C7CFF" stroke-width="12" stroke-linecap="round"/>
+    <line x1="128" y1="128" x2="168" y2="196"
+        stroke="#6C7CFF" stroke-width="12" stroke-linecap="round"/>
+    <line x1="128" y1="128" x2="88"  y2="196"
+        stroke="#6C7CFF" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Outer nodes -->
+    <circle cx="64"  cy="80"  r="24" fill="#4ECDC4"/>
+    <circle cx="192" cy="80"  r="24" fill="#FFD166"/>
+    <circle cx="208" cy="128" r="24" fill="#A78BFA"/>
+    <circle cx="168" cy="196" r="24" fill="#FF6B6B"/>
+    <circle cx="88"  cy="196" r="24" fill="#2EC4B6"/>
+
+    <!-- Central hub -->
+    <circle cx="128" cy="128" r="34" fill="#5865F2"/>
+</svg>

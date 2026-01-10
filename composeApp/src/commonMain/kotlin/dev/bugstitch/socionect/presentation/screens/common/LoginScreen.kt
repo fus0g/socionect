@@ -79,7 +79,8 @@ fun LoginScreen(
                 placeholder = { Text("xyz@123.com") },
                 singleLine = true,
                 isError = showEmailError,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
             )
 
             if (showEmailError) {
@@ -102,7 +103,8 @@ fun LoginScreen(
                 placeholder = { Text("••••••••") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
             )
 
             Spacer(modifier = Modifier.height(24.dp))
