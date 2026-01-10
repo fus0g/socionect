@@ -3,54 +3,67 @@ package dev.bugstitch.socionect.presentation.screens.user
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bugstitch.socionect.domain.models.Organisation
+import dev.bugstitch.socionect.presentation.components.OrganisationRequestItem
 
 @Composable
 fun UserReceivedRequestScreen(
     list: List<Organisation>,
     onAccept: (Organisation) -> Unit,
-    onDecline: (Organisation) -> Unit
-){
-    Column(modifier = Modifier.fillMaxSize()) {
+    onDecline: (Organisation) -> Unit,
+    isLarge: Boolean
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-        LazyColumn(modifier = Modifier.fillMaxSize()){
+        LazyColumn(
+            modifier = Modifier.widthIn(max = if (isLarge) 520.dp else 360.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            item {
+                Text(
+                    "Received Requests",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+
             items(list, key = { it.id }) { org ->
-                Row(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                OrganisationRequestItem(
+                    organisation = org
                 ) {
-                    Column {
-                        Text(org.name, style = MaterialTheme.typography.titleMedium)
-                        Text(org.description, style = MaterialTheme.typography.bodySmall)
+                    TextButton(onClick = { onDecline(org) }) {
+                        Text("Decline")
                     }
-                    Row {
-                        Button(onClick = { onAccept(org) }) {
-                            Text("Accept")
-                        }
-                        Button(onClick = { onDecline(org) }) {
-                            Text("Decline")
-                        }
+                    Button(onClick = { onAccept(org) }) {
+                        Text("Accept")
                     }
                 }
             }
         }
-
     }
 }
+

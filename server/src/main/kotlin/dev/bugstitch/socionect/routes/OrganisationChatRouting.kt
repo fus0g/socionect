@@ -89,6 +89,7 @@ fun Application.organisationChatRouting(
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
+                    ConnectionManager.removeConnection(subtopicId, this)
                     close()
                 }
             }
@@ -155,6 +156,7 @@ fun Application.organisationChatRouting(
                 } catch (e: Exception) {
                     e.printStackTrace()
                 } finally {
+                    ConnectionManager.removeConnection(coalition, this)
                     close()
                 }
             }

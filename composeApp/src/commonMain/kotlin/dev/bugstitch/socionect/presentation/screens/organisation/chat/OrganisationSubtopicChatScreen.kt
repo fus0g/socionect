@@ -41,7 +41,7 @@ fun OrganisationSubtopicChatScreen(
         topBar = {
             ChatTopBar(
                 title = chatTitle,
-                showBack = !isLarge,
+                showBack = true,
                 onBack = onBack
             )
         },

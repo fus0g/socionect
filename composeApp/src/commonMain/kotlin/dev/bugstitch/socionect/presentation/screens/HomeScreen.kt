@@ -28,21 +28,30 @@ import dev.bugstitch.socionect.presentation.navigation.OrganisationListScreen
 import dev.bugstitch.socionect.presentation.navigation.OrganisationMainScreen
 import dev.bugstitch.socionect.presentation.navigation.OrganisationReceivedRequests
 import dev.bugstitch.socionect.presentation.navigation.SubtopicChatRoom
+import dev.bugstitch.socionect.presentation.navigation.UserRequestsScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.BrowseOrganisationScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.CoalitionRequestsScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateCoalitionScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.FindAndSendRequestToUserScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationListScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationMainScreen
+import dev.bugstitch.socionect.presentation.screens.organisation.OrganisationReceivedRequestScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.chat.OrganisationCoalitionChatScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.chat.OrganisationSubtopicChatScreen
+import dev.bugstitch.socionect.presentation.screens.user.UserRequestsScreen
 import dev.bugstitch.socionect.presentation.screens.user.UserScreen
 import dev.bugstitch.socionect.presentation.viewmodels.CreateOrganisationScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.BrowseOrganisationScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.CoalitionRequestsScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateCoalitionScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.CreateOrganisationSubtopicScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.FindAndSendRequestToUserScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationCoalitionChatViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationMainScreenViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationReceivedRequestScreenViewModel
 import dev.bugstitch.socionect.presentation.viewmodels.organisation.OrganisationSubtopicChatViewModel
+import dev.bugstitch.socionect.presentation.viewmodels.user.UserRequestsScreenViewModel
 import io.ktor.client.request.invoke
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -53,7 +62,6 @@ fun HomeScreen(
     onLogout: () -> Unit,
     organisationList: List<Organisation>,
     onOrganisationItemClick: (Organisation) -> Unit,
-    navigateToUserRequests:()->Unit,
     onOrganisationCreated: () -> Unit,
     isLarge: Boolean,
     navController: NavController
@@ -229,18 +237,37 @@ fun HomeScreen(
                                             }
                                         },
                                         onReceivedRequestsClick = {
-                                            navController.navigate(
-                                                OrganisationReceivedRequests(
-                                                    organisation.id
+                                            if(isLarge)
+                                            {
+                                                lNavController.navigate(
+                                                    OrganisationReceivedRequests(
+                                                        organisation.id
+                                                    )
                                                 )
-                                            )
+                                            }else{
+                                                navController.navigate(
+                                                    OrganisationReceivedRequests(
+                                                        organisation.id
+                                                    )
+                                                )
+                                            }
                                         },
                                         onInviteUsersClick = {
-                                            navController.navigate(
-                                                FindAndSendRequestToUser(
-                                                    organisation.id
+                                            if(isLarge)
+                                            {
+                                                lNavController.navigate(
+                                                    FindAndSendRequestToUser(
+                                                        organisation.id
+                                                    )
                                                 )
-                                            )
+                                            }
+                                            else{
+                                                navController.navigate(
+                                                    FindAndSendRequestToUser(
+                                                        organisation.id
+                                                    )
+                                                )
+                                            }
                                         },
                                         coalitions = state.coalitions,
                                         onCreateCoalitionClick = {
@@ -266,14 +293,28 @@ fun HomeScreen(
                                             }
                                         },
                                         onCoalitionRequestsClick = {
-                                            navController.navigate(
-                                                CoalitionRequestScreen(
-                                                    orgId = organisation.id,
-                                                    orgName = organisation.name,
-                                                    orgDescription = organisation.description,
-                                                    orgCreatedAt = organisation.createdAt
+                                            if(isLarge)
+                                            {
+                                                lNavController.navigate(
+                                                    CoalitionRequestScreen(
+                                                        orgId = organisation.id,
+                                                        orgName = organisation.name,
+                                                        orgDescription = organisation.description,
+                                                        orgCreatedAt = organisation.createdAt
+                                                    )
                                                 )
-                                            )
+                                            }
+                                            else {
+
+                                                navController.navigate(
+                                                    CoalitionRequestScreen(
+                                                        orgId = organisation.id,
+                                                        orgName = organisation.name,
+                                                        orgDescription = organisation.description,
+                                                        orgCreatedAt = organisation.createdAt
+                                                    )
+                                                )
+                                            }
                                         },
                                         onCoalitionPressed = {
                                             if(isLarge)
@@ -348,7 +389,15 @@ fun HomeScreen(
                         3 ->{
                             UserScreen(
                                 onLogout = onLogout,
-                                navigateToUserRequests = navigateToUserRequests,
+                                navigateToUserRequests = {
+                                    if(isLarge)
+                                    {
+                                        lNavController.navigate(UserRequestsScreen)
+                                    }
+                                    else{
+                                        navController.navigate(UserRequestsScreen)
+                                    }
+                                },
                                 isLarge = isLarge
                             )
                         }
@@ -386,7 +435,10 @@ fun HomeScreen(
                                 messages = messages,
                                 loading = loading,
                                 onSend = { text -> vm.sendMessage(text, subtopicId) },
-                                onBack = { lNavController.navigate(EmptyObj) },
+                                onBack = {
+                                    vm.disconnect()
+                                    lNavController.navigate(EmptyObj)
+                                         },
                                 isLarge = isLarge
                             )
                         }
@@ -411,7 +463,10 @@ fun HomeScreen(
                                 messages = messages,
                                 loading = loading,
                                 onSend = { text -> vm.sendMessage(text, coalitionId) },
-                                onBack = { lNavController.navigate(EmptyObj) },
+                                onBack = {
+                                    vm.disconnect()
+                                    lNavController.navigate(EmptyObj)
+                                         },
                                 isLarge = isLarge
                             )
                         }
@@ -478,6 +533,97 @@ fun HomeScreen(
                                 onOrganisationSelected = {org-> vm.addOrganisation(org) },
                                 selectedOrganisations = vm.addedOrganisations,
                                 onCreateClick = { vm.createCoalition(args.orgId) },
+                                isLarge = isLarge
+                            )
+                        }
+
+                        composable<FindAndSendRequestToUser> {
+                            val args: FindAndSendRequestToUser = it.toRoute()
+                            val vm = koinViewModel<FindAndSendRequestToUserScreenViewModel>(viewModelStoreOwner = it)
+                            val state = vm.state.collectAsState()
+
+                            LaunchedEffect(Unit){
+                                vm.getMemberUsers(args.organisationId)
+                                vm.getRequestedUsers(args.organisationId)
+                            }
+
+                            FindAndSendRequestToUserScreen(
+                                query = vm.query.value,
+                                results = state.value.searchedUsers,
+                                requestedUsers = state.value.requestedUsers,
+                                memberUsers = state.value.memberUsers,
+                                loading = vm.loading.value,
+                                error = vm.error.value,
+                                onQueryChange = {usr-> vm.setQuery(usr) },
+                                onRequestClick = {  usr-> vm.sendRequestToUser(usr.id,args.organisationId) },
+                                isLarge = isLarge
+                            )
+                        }
+
+                        composable<OrganisationReceivedRequests>{
+                            val args: OrganisationReceivedRequests = it.toRoute()
+                            val vm = koinViewModel<OrganisationReceivedRequestScreenViewModel>(viewModelStoreOwner = it)
+                            val scope = rememberCoroutineScope()
+                            scope.launch {
+                                vm.getRequests(args.orgId)
+                            }
+                            val state = vm.state.collectAsState()
+
+                            OrganisationReceivedRequestScreen(
+                                list = state.value.users,
+                                onAccept = {usr->
+                                    vm.acceptRequest(usr.id, args.orgId)
+                                },
+                                onDecline = {usr->
+                                    vm.declineRequest(usr.id, args.orgId)
+                                },
+                                isLarge = isLarge
+                            )
+                        }
+
+                        composable<CoalitionRequestScreen> {
+                            val args: CreateCoalition = it.toRoute()
+                            val vm = koinViewModel<CoalitionRequestsScreenViewModel>(viewModelStoreOwner = it)
+                            val org = Organisation(
+                                id = args.orgId,
+                                name = args.orgName,
+                                description = args.orgDescription,
+                                createdAt = args.orgCreatedAt
+                            )
+                            LaunchedEffect(Unit){
+                                vm.getRequests(org)
+                            }
+                            val list = vm.list.collectAsState()
+                            CoalitionRequestsScreen(
+                                list = list.value,
+                                onAccept = { r->
+                                    vm.acceptRequest(r,org)
+                                },
+                                onDecline = { r->
+                                    vm.declineRequest(r,org)
+                                },
+                                isLarge = isLarge
+                            )
+                        }
+
+                        composable<UserRequestsScreen> {
+                            val vm = koinViewModel<UserRequestsScreenViewModel>()
+                            LaunchedEffect(Unit) {
+                                vm.getSentRequests()
+                                vm.getReceivedRequests()
+                            }
+
+                            val state = vm.state.collectAsState()
+
+                            UserRequestsScreen(
+                                sentRequests = state.value.sentRequests,
+                                receivedRequests = state.value.receivedRequests,
+                                onAccept = {
+                                    vm.confirmRequest(it)
+                                },
+                                onDecline = {
+                                    vm.declineRequest(it)
+                                },
                                 isLarge = isLarge
                             )
                         }

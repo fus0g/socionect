@@ -96,9 +96,9 @@ class OrganisationChatRepositoryImpl(
         subtopicId: String,
         token: String
     ): Flow<NetworkResult<List<OrganisationSubtopicMessage>>> = flow {
+        val session = subtopicSocket
+            ?: return@flow emit(NetworkResult.Error("Subtopic socket not connected"))
         try {
-            val session = subtopicSocket
-                ?: return@flow emit(NetworkResult.Error("Subtopic socket not connected"))
 
             while (session.isActive) {
                 val dto = session.receiveDeserialized<OrganisationSubtopicMessageDTO>()
@@ -107,6 +107,8 @@ class OrganisationChatRepositoryImpl(
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             emit(NetworkResult.Error(e.message ?: "Subtopic connection lost"))
+        }finally {
+            session.close()
         }
     }
 
@@ -114,9 +116,9 @@ class OrganisationChatRepositoryImpl(
         coalitionId: String,
         token: String
     ): Flow<NetworkResult<List<CoalitionMessage>>> = flow {
+        val session = coalitionSocket
+            ?: return@flow emit(NetworkResult.Error("Coalition socket not connected"))
         try {
-            val session = coalitionSocket
-                ?: return@flow emit(NetworkResult.Error("Coalition socket not connected"))
 
             while (session.isActive) {
                 val dto = session.receiveDeserialized<CoalitionMessageDTO>()
@@ -125,6 +127,8 @@ class OrganisationChatRepositoryImpl(
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             emit(NetworkResult.Error(e.message ?: "Coalition connection lost"))
+        }finally {
+            session.close()
         }
     }
 

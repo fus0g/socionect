@@ -3,12 +3,16 @@ package dev.bugstitch.socionect.presentation.screens.organisation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,47 +27,61 @@ import dev.bugstitch.socionect.domain.models.User
 fun OrganisationReceivedRequestScreen(
     list: List<User>,
     onAccept: (User) -> Unit,
-    onDecline: (User) -> Unit
-){
+    onDecline: (User) -> Unit,
+    isLarge: Boolean
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .navigationBarsPadding()
-        .statusBarsPadding()){
+        LazyColumn(
+            modifier = Modifier.widthIn(max = if (isLarge) 520.dp else 360.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
-        LazyColumn {
             item {
-                Text("Received Requests")
+                Text(
+                    text = "Received Requests",
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
-            list.forEach {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text(it.name, style = MaterialTheme.typography.titleMedium)
-                            Text("@${it.username}", style = MaterialTheme.typography.bodySmall)
+
+            items(list, key = { it.id }) { user ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            user.name,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            "@${user.username}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Row {
+                        Button(onClick = { onAccept(user) }) {
+                            Text("Accept")
                         }
-                        Row {
-
-                            Button(onClick = { onAccept(it) }) {
-                                Text("Accept")
-
-                            }
-
-                            Button(onClick = { onDecline(it) }) {
-                                Text("Decline")
-                            }
+                        Spacer(Modifier.width(8.dp))
+                        Button(onClick = { onDecline(user) }) {
+                            Text("Decline")
                         }
                     }
                 }
             }
         }
-
     }
-
 }

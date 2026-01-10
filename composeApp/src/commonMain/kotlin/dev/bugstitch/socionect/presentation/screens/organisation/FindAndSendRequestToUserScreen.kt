@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -35,72 +39,94 @@ fun FindAndSendRequestToUserScreen(
     loading: Boolean,
     error: String?,
     onQueryChange: (String) -> Unit,
-    onRequestClick: (User) -> Unit
+    onRequestClick: (User) -> Unit,
+    isLarge: Boolean
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Discover Users") })
-        }
-    ) { inner ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-        Column(
-            modifier = Modifier
-                .padding(inner)
-                .padding(16.dp)
+        LazyColumn(
+            modifier = Modifier.widthIn(max = if (isLarge) 520.dp else 360.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                label = { Text("Search users") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            item {
+                Text(
+                    text = "Discover Users",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
 
-            Spacer(Modifier.height(16.dp))
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    label = { Text("Search users") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.large
+                )
+            }
 
             if (loading) {
-                CircularProgressIndicator()
-                return@Scaffold
+                item {
+                    CircularProgressIndicator()
+                }
             }
 
-            if (error != null) {
-                Text(error, color = MaterialTheme.colorScheme.error)
+            if (!error.isNullOrBlank()) {
+                item {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(results) { user ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(user.name, style = MaterialTheme.typography.titleMedium)
-                                Text("@${user.username}", style = MaterialTheme.typography.bodySmall)
-                            }
-                            Column {
-                                when{
-                                    memberUsers.any { it.id == user.id } -> {
-                                        Text("joined")
-                                    }
-                                    requestedUsers.any { it.id == user.id } -> {
-                                        Text("requested")
-                                    }
-                                    else -> {
-                                        Button(onClick = {onRequestClick(user)}){
-                                            Text("request")
-                                        }
-                                    }
+            items(results, key = { it.id }) { user ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                                }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            user.name,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            "@${user.username}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    when {
+                        memberUsers.any { it.id == user.id } -> {
+                            Text(
+                                "Joined",
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
+                        requestedUsers.any { it.id == user.id } -> {
+                            Text(
+                                "Requested",
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+
+                        else -> {
+                            Button(onClick = { onRequestClick(user) }) {
+                                Text("Request")
                             }
                         }
                     }

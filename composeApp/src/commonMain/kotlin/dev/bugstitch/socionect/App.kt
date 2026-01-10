@@ -12,9 +12,6 @@ import dev.bugstitch.socionect.domain.models.Organisation
 import dev.bugstitch.socionect.presentation.navigation.*
 import dev.bugstitch.socionect.presentation.screens.*
 import dev.bugstitch.socionect.presentation.screens.common.BaseSignupLoginScreen
-import dev.bugstitch.socionect.presentation.screens.common.LoginScreen
-import dev.bugstitch.socionect.presentation.screens.common.SignUpScreen
-import dev.bugstitch.socionect.presentation.screens.organisation.BrowseOrganisationScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CoalitionRequestsScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateCoalitionScreen
 import dev.bugstitch.socionect.presentation.screens.organisation.CreateSubTopicScreen
@@ -117,9 +114,6 @@ fun App() {
                             orgDescription = org.description,
                             orgCreatedAt = org.createdAt
                         ))
-                    },
-                    navigateToUserRequests = {
-                        navController.navigate(UserRequestsScreen)
                     },
                     onOrganisationCreated = {
                         navController.navigate(Home) {
@@ -284,6 +278,7 @@ fun App() {
                     onDecline = {usr->
                         vm.declineRequest(usr.id, args.orgId)
                     },
+                    isLarge = isLarge
                 )
             }
 
@@ -305,7 +300,8 @@ fun App() {
                     },
                     onDecline = {
                         vm.declineRequest(it)
-                    }
+                    },
+                    isLarge = isLarge
                 )
             }
 
@@ -327,7 +323,8 @@ fun App() {
                     loading = vm.loading.value,
                     error = vm.error.value,
                     onQueryChange = {usr-> vm.setQuery(usr) },
-                    onRequestClick = {  usr-> vm.sendRequestToUser(usr.id,args.organisationId) }
+                    onRequestClick = {  usr-> vm.sendRequestToUser(usr.id,args.organisationId) },
+                    isLarge = isLarge
                 )
             }
 
@@ -384,7 +381,8 @@ fun App() {
                     },
                     onDecline = { r->
                         vm.declineRequest(r,org)
-                    }
+                    },
+                    isLarge = isLarge
                 )
             }
 
@@ -408,7 +406,10 @@ fun App() {
                     messages = messages,
                     loading = loading,
                     onSend = { text -> vm.sendMessage(text, subtopicId) },
-                    onBack = { navController.popBackStack() },
+                    onBack = {
+                        vm.disconnect()
+                        navController.popBackStack()
+                             },
                     isLarge = isLarge
                 )
             }
@@ -433,7 +434,10 @@ fun App() {
                     messages = messages,
                     loading = loading,
                     onSend = { text -> vm.sendMessage(text, coalitionId) },
-                    onBack = { navController.popBackStack() },
+                    onBack = {
+                        vm.disconnect()
+                        navController.popBackStack()
+                             },
                     isLarge = isLarge
                 )
             }

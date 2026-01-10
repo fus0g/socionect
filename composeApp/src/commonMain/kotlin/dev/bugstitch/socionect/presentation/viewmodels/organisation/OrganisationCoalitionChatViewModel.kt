@@ -82,6 +82,15 @@ class OrganisationCoalitionChatViewModel(
         }
     }
 
+    fun disconnect() {
+        viewModelScope.launch {
+            organisationChatRepository.detach()
+            listeningJob?.cancel()
+            isConnected = false
+        }
+    }
+
+
     override fun onCleared() {
         viewModelScope.launch {
             organisationChatRepository.detach()
