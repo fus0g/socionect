@@ -1,22 +1,38 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM), Server.
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+# Socionect
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+Socionect is a mutli-organisation communication platform (something like slack/discord with a small difference). There are organisations which are the base of socionect (something like server in discord) which users can join or be invited. Organisation contain subtopics where users can communicate or interact.
 
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
+The main feature which makes Socionect different is Coalition. It is something like a subtopic but shared between multiple organisations. This completely removes the need for users to join multiple organisation to communicate or collaborate.
 
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+This Project was build for the Kotlin Multiplatform Contest 2026
+
+## Motivation
+In the second year of my college I joined the National Service Scheme and started contributing there. With NSS I got involved in various public service affairs with various NGO’s and faced a frustrating  problem that laid the foundation for Socionect. When we collaborated with an NGO then to communicate with them either we had to join their messaging groups or they had to join ours. This created a huge overhead before starting anything. Socionect solves this by coalitions.
+
+## Features
+
+1. Organised Communication  (like channels in discord)
+2. Subtopics (to saperate different topics)
+3. Coalitions (to support inter organisation communication)
+4. Multiplatform support
+
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/p1.png" alt="Image 1" width="25%"/>
+  <img src="screenshots/p2.png" alt="Image 2" width="25%"/>
+  <img src="screenshots/p3.png" alt="Image 3" width="25%"/>
+</p>
+
+<p align="center">
+  <img src="screenshots/d1.png" alt="Image 1" width="50%"/>
+  <img src="screenshots/d2.png" alt="Image 2" width="50%"/>
+</p>
+
+[Watch A short Walkthrough](https://drive.google.com/file/d/1t0XW4Sp-cCxNQRQvQJZH3BmityvcMeP1/view?usp=sharing)
+
+## How to Run
 
 ### Build and Run Android Application
 
@@ -62,34 +78,77 @@ in your IDE’s toolbar or run it directly from the terminal:
 To build and run the development version of the web app, use the run configuration from the run widget
 in your IDE's toolbar or run it directly from the terminal:
 - for the Wasm target (faster, modern browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-    ```
+    - on macOS/Linux
+      ```shell
+      ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+      ```
+    - on Windows
+      ```shell
+      .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
+      ```
 - for the JS target (slower, supports older browsers):
-  - on macOS/Linux
-    ```shell
-    ./gradlew :composeApp:jsBrowserDevelopmentRun
-    ```
-  - on Windows
-    ```shell
-    .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-    ```
+    - on macOS/Linux
+      ```shell
+      ./gradlew :composeApp:jsBrowserDevelopmentRun
+      ```
+    - on Windows
+      ```shell
+      .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
+      ```
 
 ### Build and Run iOS Application
 
 To build and run the development version of the iOS app, use the run configuration from the run widget
 in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
 
----
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+## Build Using
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+1. **Kotlin Multiplatform**
+    - Shared business logic across Android, Desktop, Web, iOS, and Server
+    - Single language & unified tooling for full-stack development
+
+2. **Compose Multiplatform**
+    - Declarative UI for Android, Desktop, and Web
+    - Shared UI layer with platform-specific adaptations
+
+3. **Ktor (Client & Server)**
+    - Backend APIs, WebSockets, authentication, and content negotiation
+    - Multiplatform HTTP client for app ↔ server communication
+
+4. **Kotlinx Coroutines**
+    - Structured concurrency for asynchronous and background tasks
+
+5. **Kotlinx Serialization**
+    - JSON serialization/deserialization for network and data exchange
+
+6. **Kotlinx DateTime**
+    - Multiplatform date and time handling
+
+7. **Koin**
+    - Dependency Injection for shared, Android, and server layers
+
+8. **Exposed (SQL ORM)**
+    - Type-safe database access
+    - Supports PostgreSQL and SQLite
+
+9. **PostgreSQL / SQLite**
+    - PostgreSQL (supported need to enable)
+    - SQLite for prototype
+
+10. **Compose Navigation**
+    - Navigation management for Compose Multiplatform UIs
+
+11. **Multiplatform Settings**
+    - Cross-platform key-value storage (preferences, tokens, flags)
+
+12. **Napier**
+    - Multiplatform logging abstraction
+
+13. **Argon2**
+    - Secure password hashing for server-side authentication
+
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
